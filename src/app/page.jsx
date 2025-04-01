@@ -3,9 +3,9 @@
 const Main = () => {
   return (
     <div>
-      <a href="/about">
+      {/* <a href="/about">
         About
-      </a>
+      </a> */}
     </div>
   );
 }
