@@ -12,8 +12,8 @@ const Navbar = () => {
                         { href: '/experience', label: 'Experience' },
                         { href: '/projects', label: 'Projects' },
                     ].map((item) => (
-                        <li key={item.href}>
-                            <Link href={item.href}>
+                        <li key={item.href} className="px-4">
+                            <Link href={item.href} className="relative text-lg">
                                 {item.label}
                             </Link>
                         </li>

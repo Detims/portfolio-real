@@ -2,8 +2,8 @@
 
 const Footer = () => {
     return(
-        <footer>
-            <h2>Footer</h2>
+        <footer className="text-center">
+            <p>Footer</p>
         </footer>
     )
 }
