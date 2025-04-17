@@ -1,17 +1,43 @@
 'use client'
 import Link from "next/link"
+import { useState } from "react"
 
 const Navbar = () => {
+    const [isOpen, setIsOpen] = useState(false)
+
+    const navItems = [
+        { href: '/', label: 'Home' },
+        { href: '/about', label: 'About' },
+        { href: '/experience', label: 'Experience' },
+        { href: '/projects', label: 'Projects' },
+    ]
+
     return (
-        <nav className="fixed p-4 w-full top-0 z-10">
-            <div className="flex mx-auto">
+        <nav className="fixed p-4 w-full top-0 z-10 transition-all">
+            <div className="flex mx-auto justify-end w-full">
+
+                {/* Hamburger Menu */}
+                <button className="md:hidden focus:outline-none"
+                onClick={() => setIsOpen(!isOpen)}>
+                    {isOpen ? "X" : "O"}
+                </button>
+
+                {/* Navbar Links */}
+                {isOpen && (
+                    <ul className="md:hidden absolute top-full right-0 flex flex-col pt-0 gap-4 text-right">
+                        {navItems.map((item) => (
+                            <li key={item.href} className="px-4">
+                                <Link href={item.href} className="relative text-lg">
+                                    {item.label}
+                                </Link>
+                            </li>
+                        ))}
+                    </ul>
+                )}
+
+                {/* Desktop Links */}
                 <ul className="hidden md:flex items-center">
-                    {[
-                        { href: '/', label: 'Home' },
-                        { href: '/about', label: 'About' },
-                        { href: '/experience', label: 'Experience' },
-                        { href: '/projects', label: 'Projects' },
-                    ].map((item) => (
+                    {navItems.map((item) => (
                         <li key={item.href} className="px-4">
                             <Link href={item.href} className="relative text-lg">
                                 {item.label}

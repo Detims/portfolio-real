@@ -1,11 +1,13 @@
 'use client'
-import { motion } from "framer-motion";
+import Image from "next/image";
+import { assets } from "../../assets/assets";
 
 const Main = () => {
   return (
-    <div className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden">
+    <div className="relative min-h-screen flex flex-col max-auto text-center items-center justify-center overflow-hidden">
       {/* Content */}
       <div className="text-center">
+        <Image src={assets.Natsu} alt="user" className="w-32 rounded-full mx-auto"/>
         <h1 className="mb-6 text-5xl">Hi, I'm Nhan Nguyen</h1>
 
         {/* Subheading */}
@@ -19,7 +21,6 @@ const Main = () => {
             Resume
           </a>
         </div>
-        
       </div>
     </div>
   );
