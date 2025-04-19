@@ -13,8 +13,8 @@ const Navbar = () => {
     ]
 
     return (
-        <nav className="fixed p-4 w-full top-0 z-10 transition-all">
-            <div className="flex mx-auto justify-end w-full">
+        <nav className="fixed p-4 w-full top-0 z-10 transition-all bg-stone-400">
+            <div className="container flex mx-auto justify-end w-full items-center">
 
                 {/* Hamburger Menu */}
                 <button className="md:hidden focus:outline-none"
