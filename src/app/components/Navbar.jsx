@@ -1,6 +1,7 @@
 'use client'
 import Link from "next/link"
 import { useState } from "react"
+import { motion } from "framer-motion"
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false)
@@ -24,7 +25,7 @@ const Navbar = () => {
 
                 {/* Navbar Links */}
                 {isOpen && (
-                    <ul className="md:hidden absolute top-full right-0 flex flex-col pt-0 gap-4 text-right">
+                    <ul className="md:hidden absolute top-full w-full bg-stone-400 right-0 flex flex-col pt-0 gap-4 items-center p-6">
                         {navItems.map((item) => (
                             <li key={item.href} className="px-4">
                                 <Link href={item.href} className="relative text-lg">

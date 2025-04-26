@@ -11,26 +11,27 @@ export const ProjectCard = ({
     code,
 }) => {
     return(
-        <div className='rounded-lg overflow-hidden group flex flex-col h-full'>
+        <div className='rounded-lg overflow-hidden group flex flex-col h-full bg-gray-500'>
             {/* Image */}
-            <Image 
-                src={image} 
-                alt={title}
-                width={400}
-                height={200}
-                priority
-                className='w-full overflow-hidden' 
-            />
+            <div className='relative w-full aspect-[2/1] overflow-hidden'>
+                <Image 
+                    src={image} 
+                    alt={title}
+                    fill
+                    priority
+                    className='object-cover rounded-t-lg' 
+                />
+            </div>
 
             {/* Content */}
             <div className='p-6 flex flex-col flex-grow'>
-                <h3>{title}</h3>
-                <p>{description}</p>
+                <h2 className='text-2xl font-bold mb-2'>{title}</h2>
+                <p className='mb-4 flex-grow'>{description}</p>
                 
                 {/* Tools and Buttons */}
                 <div className='mt-auto'>
                     {/* Tools */}
-                    <div className='flex flex-wrap'>
+                    <div className='flex flex-wrap gap-2 mb-4'>
                         {tools.map((tool, i) => (
                             <span
                                 key={i}

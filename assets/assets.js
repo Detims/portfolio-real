@@ -6,9 +6,9 @@ export const assets = {
 
 export const projectInfo = [
     {
-        title: "Placeholder",
-        description: 'Placeholder',
-        tools: ['Pyhton'],
+        title: "Title",
+        description: 'Description',
+        tools: ['Python'],
         image: Natsu,
         demo: '',
         code: '',
