@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 
 const Main = () => {
   return (
-    <div className="relative min-h-screen flex flex-col mx-auto text-center items-center justify-center overflow-hidden bg-[#001921]">
+    <div className="relative min-h-screen flex flex-col mx-auto text-center items-center justify-center overflow-hidden">
       {/* Content */}
       <div className="text-center">
         {/* <motion.div
