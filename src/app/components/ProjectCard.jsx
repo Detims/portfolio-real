@@ -11,7 +11,7 @@ export const ProjectCard = ({
     code,
 }) => {
     return(
-        <div className='rounded-lg overflow-hidden group flex flex-col h-full bg-gray-500'>
+        <div className='rounded-lg overflow-hidden group flex flex-col h-full bg-gray-800'>
             {/* Image */}
             <div className='relative w-full aspect-[2/1] overflow-hidden'>
                 <Image 
