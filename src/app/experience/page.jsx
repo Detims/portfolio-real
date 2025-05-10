@@ -2,11 +2,20 @@
 import { VerticalTimeline, VerticalTimelineElement } from "react-vertical-timeline-component"
 import 'react-vertical-timeline-component/style.min.css';
 import { experienceInfo } from "../../../assets/assets";
+import { motion } from "framer-motion";
 
 const Experience = () => {
     return(
         <div className="relative min-h-screen overflow-hidden text-white pt-12">
-            <h1 className="relative container mx-auto py-12 px-6 mt-16 text-center text-6xl font-bold text-[#00A7E1]">Experience</h1>
+            <motion.h1 
+                className="relative container mx-auto py-12 px-6 mt-16 text-center text-6xl font-bold text-[#00A7E1]"
+                initial={{ y: -30, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6 }}
+            >
+                Experience
+            </motion.h1>
+
             <VerticalTimeline>
 
                 {/* Map experience from assets file to the timeline */}
