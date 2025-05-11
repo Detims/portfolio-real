@@ -1,11 +1,17 @@
-import { FaCss3Alt, FaDocker, FaGitAlt, FaGithub, FaHtml5, FaNodeJs, FaPython, FaReact } from "react-icons/fa"
 import Natsu from "./natsu.jpg"
+import Discord from "./discord.svg"
+import Cart from "./cart.png"
+import Me from "./me.png"
+import { FaCss3Alt, FaDocker, FaGitAlt, FaGithub, FaHtml5, FaNodeJs, FaPython, FaReact } from "react-icons/fa"
 import { SiCplusplus, SiFlask, SiJavascript, SiSupabase, SiTypescript, SiVite } from "react-icons/si"
 import { RiNextjsFill, RiTailwindCssFill } from "react-icons/ri"
 import { BiLogoPostgresql } from "react-icons/bi"
 
 export const assets = {
     Natsu,
+    Discord,
+    Cart,
+    Me,
 }
 
 export const aboutInfo = [
@@ -55,11 +61,18 @@ export const experienceInfo = [
 
 export const projectInfo = [
     {
-        title: 'Title',
-        description: 'Description',
-        tools: ['Python'],
-        image: Natsu,
-        demo: '',
-        code: '',
+        title: 'Shopping Cart',
+        description: 'Built a responsive e-commerce website utilizing products from the Fakestore API, supporting adding/removing items to a cart.',
+        tools: ['Vite', 'React', 'Tailwind CSS'],
+        image: Cart,
+        demo: 'https://shopping-cart-gold-iota.vercel.app/',
+        code: 'https://github.com/Detims/shopping-cart',
+    },
+    {
+        title: 'Discord Bot',
+        description: 'Developed a Discord application with sentiment analysis, logging, AI prompting, and a postgreSQL database. Enhanced user engagement and provided community administrators with resources to faciliate moderation.',
+        tools: ['Python', 'OpenAI API', 'Google API', 'NLTK', 'PostgreSQL', 'Docker'],
+        image: Discord,
+        code: 'https://github.com/Detims/discord-bot',
     },
 ]
