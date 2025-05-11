@@ -2,6 +2,7 @@ import Natsu from "./natsu.jpg"
 import Discord from "./discord.svg"
 import Cart from "./cart.png"
 import Me from "./me.png"
+import Space from "./space.png"
 import { FaCss3Alt, FaDocker, FaGitAlt, FaGithub, FaHtml5, FaNodeJs, FaPython, FaReact } from "react-icons/fa"
 import { SiCplusplus, SiFlask, SiJavascript, SiSupabase, SiTypescript, SiVite } from "react-icons/si"
 import { RiNextjsFill, RiTailwindCssFill } from "react-icons/ri"
@@ -12,6 +13,7 @@ export const assets = {
     Discord,
     Cart,
     Me,
+    Space,
 }
 
 export const aboutInfo = [
@@ -67,6 +69,14 @@ export const projectInfo = [
         image: Cart,
         demo: 'https://shopping-cart-gold-iota.vercel.app/',
         code: 'https://github.com/Detims/shopping-cart',
+    },
+    {
+        title: 'Space Cleanup',
+        description: 'Led the development of a game for the Fullyhacks 2025 hackathon, where the player pilots a ship and shoots down space debris with a basketball theme.',
+        tools: ['GDScript', 'Krita'],
+        image: Space,
+        demo: 'https://ahpham123.itch.io/space-cleanup',
+        code: 'https://github.com/Detims/space-debris',
     },
     {
         title: 'Discord Bot',
