@@ -47,7 +47,8 @@ const Main = () => {
             My Projects
           </a>
           <a 
-            href="" 
+            href="/Resume.pdf" 
+            target="_blank"
             className="px-6 py-2 bg-violet-500 rounded-lg text-white transition hover:scale-110 duration:200 shadow-md"
           >
             View Resume

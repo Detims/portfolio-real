@@ -3,6 +3,7 @@ import Discord from "./discord.svg"
 import Cart from "./cart.png"
 import Me from "./me.png"
 import Space from "./space.png"
+import Recruitment from "./Recruitment.png"
 import { FaCss3Alt, FaDocker, FaGitAlt, FaGithub, FaHtml5, FaNodeJs, FaPython, FaReact } from "react-icons/fa"
 import { SiCplusplus, SiFlask, SiJavascript, SiSupabase, SiTypescript, SiVite } from "react-icons/si"
 import { RiNextjsFill, RiTailwindCssFill } from "react-icons/ri"
@@ -14,6 +15,7 @@ export const assets = {
     Cart,
     Me,
     Space,
+    Recruitment,
 }
 
 export const aboutInfo = [
@@ -85,4 +87,12 @@ export const projectInfo = [
         image: Discord,
         code: 'https://github.com/Detims/discord-bot',
     },
+    {
+        title: 'Arknights Recruitment Calculator',
+        description: 'Constructed a reactive web application using the HellaAPI to calculate and display recruitment outcomes for the game Arknights.',
+        tools: ['Vite', 'React', 'Tailwind CSS', 'HellaAPI'],
+        image: Recruitment,
+        demo: 'https://recruitment-calculator-sigma.vercel.app/',
+        code: 'https://github.com/Detims/recruitment-calculator',
+    }
 ]
