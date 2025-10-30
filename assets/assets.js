@@ -1,7 +1,7 @@
 import Natsu from "./natsu.jpg"
 import Discord from "./discord.svg"
 import Cart from "./cart.png"
-import Me from "./me.png"
+import Me from "./me.jpg"
 import Space from "./space.png"
 import Recruitment from "./Recruitment.png"
 import { FaCss3Alt, FaDocker, FaGitAlt, FaGithub, FaHtml5, FaNodeJs, FaPython, FaReact } from "react-icons/fa"
