@@ -1,4 +1,3 @@
-import Natsu from "./natsu.jpg"
 import Discord from "./discord.svg"
 import Cart from "./cart.png"
 import Me from "./me.jpg"
@@ -10,7 +9,6 @@ import { RiNextjsFill, RiTailwindCssFill } from "react-icons/ri"
 import { BiLogoPostgresql } from "react-icons/bi"
 
 export const assets = {
-    Natsu,
     Discord,
     Cart,
     Me,
@@ -40,6 +38,27 @@ export const aboutInfo = [
 
 export const experienceInfo = [
     {
+        company: 'Union of Vietnamese Student Assocations of Southern California',
+        logo: '',
+        position: 'Web Developer',
+        duration: 'August 2025 - present',
+        description: [
+            'Designed and developed the organization’s website from scratch, providing a digital hub for thousands of members, volunteers, and clients.',
+            'Implemented responsive front-end architecture using TypeScript, React, and Tailwind CSS, improving usability across devices.',
+            'Applied Git best practices and followed Figma guidelines to enable collaborative development and maintain clean, version-controlled codebases.',
+        ],
+    },
+    {
+        company: 'Association of Computing Machinery',
+        logo: '',
+        position: 'BeachHacks Tech Committee',
+        duration: 'August 2025 - present',
+        description: [
+            'DSupported development of front-end event infrastructure and registration systems with Javascript, TailwindCSS, and GSAP used by hundreds of participants.',
+            'Built and maintained internal tools to optimize hackathon workflows, including authentication and scheduling features.',
+        ],
+    },
+    {
         company: 'Walgreens',
         logo: '',
         position: 'Customer Service Associate',
@@ -58,7 +77,7 @@ export const experienceInfo = [
         duration: 'August 2023 - present',
         description: [
             'Studying Software Development and Machine Learning',
-            'Working toward a minor in Applied Statistics',
+            'Minoring in Statistics',
         ],
     }
 ]

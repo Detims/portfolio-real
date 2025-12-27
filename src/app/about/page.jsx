@@ -32,7 +32,7 @@ const About = () => {
                     >
                         About Me
                     </h2>
-                    <p className="leading-relaxed mb-6 text-lg">
+                    <p className="leading-relaxed mb-6 text-lg text-center lg:text-left">
                         I am a passionate Computer Science student dedicated to making innovative and data-driven solutions.
                         I enjoy utilizing my creativity and knowledge to solve real-world problems.
                         I am currently studying Software Development and Machine Learning.

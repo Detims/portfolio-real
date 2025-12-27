@@ -8,13 +8,6 @@ const Main = () => {
     <div className="relative min-h-screen flex flex-col mx-auto text-center items-center justify-center overflow-hidden">
       {/* Content */}
       <div className="text-center">
-        {/* <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.8 }}
-        >
-          <Image src={assets.Natsu} alt="user" className="w-32 rounded-full mx-auto mb-4"/>
-        </motion.div> */}
         <motion.h1 
           className="mb-6 text-7xl"
           initial={{ y: -30, opacity: 0 }}
