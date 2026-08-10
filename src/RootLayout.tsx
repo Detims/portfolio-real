@@ -3,7 +3,7 @@ import { Sidebar } from "./components/sidebar";
 
 export function RootLayout() {
     return (
-        <html
+        <div
             lang="en"
             className="h-full antialiased"
         >
@@ -13,6 +13,6 @@ export function RootLayout() {
                     <Outlet />
                 </main>
             </body>
-        </html>
+        </div>
     )
 }
