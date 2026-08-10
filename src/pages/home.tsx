@@ -1,5 +1,7 @@
 export function Home() {
     return(
-        <h1>Home</h1>
+        <div className="h-screen flex flex-col justify-center items-center">
+            <h1>Home</h1>
+        </div>
     )
 }

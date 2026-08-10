@@ -3,7 +3,7 @@ import { Sidebar } from "./components/sidebar";
 
 export function RootLayout() {
     return (
-        <div className="min-h-full flex flex-col bg-black text-white">
+        <div className="root min-h-screen flex flex-col bg-black text-white">
             <Sidebar />
             <main>
                 <Outlet />
