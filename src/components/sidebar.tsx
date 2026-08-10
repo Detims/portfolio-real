@@ -14,7 +14,7 @@ export function Sidebar() {
     return(
         <>
             {/* Desktop sidebar */}
-            <aside className="fixed left-0 top-0 hidden h-screen w-28 flex-col justify-center pl-18 pr-7 pb-8 md:flex">
+            <aside className="fixed left-0 top-0 z-50 hidden h-screen w-28 flex-col justify-center pl-18 pr-7 pb-8 md:flex">
                 <div className="flex flex-col">
                     <nav>
                         <ul className="space-y-6">
