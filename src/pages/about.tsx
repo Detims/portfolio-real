@@ -1,5 +1,13 @@
+import { Divider } from "../components/divider";
+
 export function About() {
     return(
-        <h1>About</h1>
-    )
+        <>
+            <Divider label="About" id="about">
+                <div className="flex flex-col items-center justify-center">
+                    
+                </div>
+            </Divider>
+        </>
+    );
 }
