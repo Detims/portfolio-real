@@ -1,4 +1,5 @@
 import { Divider } from "../components/divider";
+import { Experience } from "../components/experience";
 
 export function About() {
     return(
@@ -23,6 +24,7 @@ export function About() {
                     </p>
                 </div>
             </Divider>
+            <Experience />
         </>
     );
 }
