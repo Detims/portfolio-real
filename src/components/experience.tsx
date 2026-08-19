@@ -21,15 +21,22 @@ const experiences: ExperienceItem[] = [
         organization:
             "Union of Vietnamese Student Associations of Southern California",
         summary:
-            "Designed and shipped responsive React, TypeScript, and Tailwind platform features through weekly Agile sprints, contributing 15 approved pull requests spanning new pages, mobile responsiveness, and performance improvements.",
+            "Designed and shipped a responsive platform with Next.js, Typescript, and Tailwind, delivering high-performance web experiences for hundreds of users.",
     },
     {
         title: "Frontend Developer",
         period: "August 2025 — March 2026",
         organization: "Association of Computing Machinery",
         summary:
-            "Built event registration and animated hackathon experiences with JavaScript, Tailwind CSS, and GSAP, supporting more than 300 applications and 137 attendees on a one-week delivery timeline.",
+            "Built event registration and animated hackathon experiences with JavaScript, Tailwind CSS, and GSAP, supporting more than 300 applications and 137 attendees.",
     },
+    {
+        title: "B.S in Computer Science",
+        period: "August 2023 — Present",
+        organization: "California State University, Long Beach",
+        summary:
+            "Studying Software Development and Machine Learning. Minoring in Statistics."
+    }
 ];
 
 export function Experience() {
