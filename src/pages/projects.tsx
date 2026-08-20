@@ -6,39 +6,74 @@ import {
 
 const placeholderProjects: ProjectCardProps[] = [
     {
-        title: "Project title",
+        title: "Desktop Job Sim",
         description:
-            "Add a concise overview of what you built, who it serves, and the problem or result that makes the project worth exploring.",
-        image: "/images/space.png",
+            "A desktop pet with complex job trees, housing, and Gmail integration using Electron.",
+        image: "/images/desktop-pet.png",
         imageAlt:
-            "Placeholder illustration of a nervous character with a looming shadow",
+            "Sprite sheet of the desktop pet",
         links: [
-            { label: "Live site", href: "#project-01" },
-            { label: "Github", href: "#project-01" },
+            { label: "Github", href: "https://github.com/Detims/desktop-job-sim" },
         ],
     },
     {
-        title: "Project title",
+        title: "OceanGuesser",
         description:
-            "Add a concise overview of what you built, who it serves, and the problem or result that makes the project worth exploring.",
-        image: "/images/space.png",
+            "A Geoguessr-like game focused entirely on oceans and coastlines with Next.js and Google Maps API.",
+        image: "/images/oceanguesser.png",
         imageAlt:
-            "Placeholder illustration of a nervous character with a looming shadow",
+            "Home page of the OceanGuesser game",
         links: [
-            { label: "Live site", href: "#project-02" },
-            { label: "Github", href: "#project-02" },
+            { label: "Link", href: "https://ocean-guesser.vercel.app/" },
+            { label: "Github", href: "https://github.com/ahpham123/ocean-guesser" },
+            { label: "Devpost", href: "https://devpost.com/software/ocean-guesser" }
         ],
     },
     {
-        title: "Project title",
+        title: "Facebook Clone",
         description:
-            "Add a concise overview of what you built, who it serves, and the problem or result that makes the project worth exploring.",
+            "A social network prototype to replicate core features of Facebook.",
+        image: "/images/facebook.png",
+        imageAlt:
+            "Facebook logo",
+        links: [
+            { label: "Github", href: "https://github.com/Detims/facebook-clone" },
+        ],
+    },
+    {
+        title: "Space Debris Cleanup",
+        description:
+            "A space invaders-style game made using Godot.",
         image: "/images/space.png",
         imageAlt:
-            "Placeholder illustration of a nervous character with a looming shadow",
+            "Main menu of the Space Debris Cleanup game",
         links: [
-            { label: "Live site", href: "#project-03" },
-            { label: "Github", href: "#project-03" },
+            { label: "Link", href: "https://ahpham123.itch.io/space-cleanup" },
+            { label: "Github", href: "https://github.com/Detims/space-debris" },
+            { label: "Devpost", href: "https://devpost.com/software/space-debris-cleaning-game" }
+        ],
+    },
+    {
+        title: "Gambling Bot!",
+        description:
+            "A Discord application with sentiment analysis, logging, and moderation tools using Discord API, NLTK library, and Supabase.",
+        image: "/images/discord.svg",
+        imageAlt:
+            "Discord logo",
+        links: [
+            { label: "Github", href: "https://github.com/Detims/discord-bot" },
+        ],
+    },
+    {
+        title: "Arknights Recruitment Calculator",
+        description:
+            "An Arknights recruitment utility for quickly narrowing down compatible operators using Vite and HellaAPI.",
+        image: "/images/recruitment.png",
+        imageAlt:
+            "Preview of the home page of the recruitment calculator site",
+        links: [
+            { label: "Link", href: "https://recruitment-calculator-sigma.vercel.app/" },
+            { label: "Github", href: "https://github.com/Detims/recruitment-calculator" },
         ],
     },
 ];
