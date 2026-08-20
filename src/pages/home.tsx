@@ -4,7 +4,7 @@ export function Home() {
     return(
         <section className="relative h-screen flex flex-col justify-center items-center overflow-hidden bg-black">
             <div className="relative z-10 text-center">
-                <h1 className="text-white text-5xl md:text-6xl lg:text-8xl">
+                <h1 className="font-mono font-light text-white text-5xl md:text-6xl lg:text-8xl">
                     Nhan Nguyen
                 </h1>
                 <h2 className="mt-8 text-2xl">
