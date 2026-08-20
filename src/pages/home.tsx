@@ -1,9 +1,23 @@
+import { lazy, Suspense } from "react";
 import { NavLink } from "react-router";
+
+const HeroGeometry = lazy(async () => {
+    const module = await import("../components/hero-geometry");
+
+    return { default: module.HeroGeometry };
+});
 
 export function Home() {
     return(
         <section className="relative h-screen flex flex-col justify-center items-center overflow-hidden bg-black">
-            <div className="relative z-10 text-center">
+            <Suspense fallback={null}>
+                <HeroGeometry />
+            </Suspense>
+            <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.42)_0%,rgba(0,0,0,0.12)_42%,transparent_68%)]"
+            />
+            <div className="relative z-10 text-center drop-shadow-[0_2px_14px_rgba(0,0,0,0.9)]">
                 <h1 className="font-mono font-light text-white text-5xl md:text-6xl lg:text-8xl">
                     Nhan Nguyen
                 </h1>
