@@ -15,7 +15,7 @@ export function Home() {
             </Suspense>
             <div
                 aria-hidden="true"
-                className="pointer-events-none absolute inset-0 z-[1] bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.42)_0%,rgba(0,0,0,0.12)_42%,transparent_68%)]"
+                className="pointer-events-none absolute inset-0 z-1 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.42)_0%,rgba(0,0,0,0.12)_42%,transparent_68%)]"
             />
             <div className="relative z-10 text-center drop-shadow-[0_2px_14px_rgba(0,0,0,0.9)]">
                 <h1 className="font-mono font-light text-white text-5xl md:text-6xl lg:text-8xl">
