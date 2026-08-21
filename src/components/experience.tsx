@@ -1,4 +1,6 @@
+import { motion } from "motion/react";
 import { Divider } from "./divider";
+import { fadeDrop, viewportOnce } from "../lib/motion";
 
 type ExperienceItem = {
     title: string;
@@ -50,11 +52,15 @@ export function Experience() {
                     const isLast = index === experiences.length - 1;
 
                     return (
-                        <li
+                        <motion.li
                             key={`${experience.organization}-${experience.title}`}
                             className={`relative grid grid-cols-[1.5rem_minmax(0,1fr)] gap-x-5 md:grid-cols-[42%_58%] md:gap-x-0 ${
                                 isLast ? "" : "pb-16 md:pb-28"
                             }`}
+                            initial="hidden"
+                            whileInView="visible"
+                            viewport={viewportOnce}
+                            variants={fadeDrop}
                         >
                             {!isLast && (
                                 <span
@@ -83,7 +89,7 @@ export function Experience() {
                             <p className="col-start-2 mt-6 max-w-3xl text-base leading-7 text-white/65 md:col-start-2 md:row-start-1 md:mt-0 md:pl-12 md:text-xl md:leading-8">
                                 {experience.summary}
                             </p>
-                        </li>
+                        </motion.li>
                     );
                 })}
             </ol>
