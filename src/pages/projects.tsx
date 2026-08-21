@@ -1,8 +1,10 @@
+import { motion } from "motion/react";
 import { Divider } from "../components/divider";
 import {
     ProjectCard,
     type ProjectCardProps,
 } from "../components/project-card";
+import { fadeDrop, viewportOnce } from "../lib/motion";
 
 const placeholderProjects: ProjectCardProps[] = [
     {
@@ -82,10 +84,16 @@ export function Projects() {
     return (
         <Divider id="projects" label="Projects">
             <ul className="space-y-24 md:space-y-32">
-                {placeholderProjects.map((project, index) => (
-                    <li key={index}>
+                {placeholderProjects.map((project) => (
+                    <motion.li
+                        key={project.title}
+                        initial="hidden"
+                        whileInView="visible"
+                        viewport={viewportOnce}
+                        variants={fadeDrop}
+                    >
                         <ProjectCard {...project} />
-                    </li>
+                    </motion.li>
                 ))}
             </ul>
         </Divider>

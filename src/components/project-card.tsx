@@ -1,3 +1,6 @@
+import { motion } from "motion/react";
+import { softEase } from "../lib/motion";
+
 type ProjectLink = {
     label: string;
     href: string;
@@ -20,17 +23,32 @@ export function ProjectCard({
 }: ProjectCardProps) {
     return (
         <article className="grid scroll-mt-8 items-start gap-8 lg:grid-cols-[minmax(0,1.45fr)_minmax(18rem,0.9fr)] lg:gap-12 xl:gap-16">
-            <div className="group relative aspect-16/10 overflow-hidden rounded-sm border border-white/15 bg-white/5">
-                <img
+            <motion.div
+                className="group relative aspect-16/10 overflow-hidden rounded-sm border border-white/15 bg-white/5"
+                initial="rest"
+                animate="rest"
+                whileHover="hover"
+                variants={{
+                    rest: { y: 0 },
+                    hover: { y: -3 },
+                }}
+                transition={{ duration: 0.22, ease: softEase }}
+            >
+                <motion.img
                     src={image}
                     alt={imageAlt}
-                    className="size-full object-cover transition duration-500 ease-out group-hover:scale-[1.02]"
+                    className="size-full object-cover"
+                    variants={{
+                        rest: { scale: 1 },
+                        hover: { scale: 1.02 },
+                    }}
+                    transition={{ duration: 0.45, ease: softEase }}
                 />
                 <div
                     aria-hidden="true"
                     className="pointer-events-none absolute inset-0 bg-linear-to-t from-black/20 via-transparent to-white/5"
                 />
-            </div>
+            </motion.div>
 
             <div className="pt-1 lg:pt-0">
                 <h3 className="text-4xl font-normal tracking-tight text-white md:text-5xl lg:text-6xl">
@@ -47,9 +65,11 @@ export function ProjectCard({
                 >
                     {links.map((link) => (
                         <li key={link.label}>
-                            <a
+                            <motion.a
                                 href={link.href}
                                 className="group/link inline-flex items-center gap-2 border-b border-white/30 pb-1 text-xs font-medium uppercase tracking-[0.22em] text-white/75 transition-colors hover:border-indigo-300 hover:text-indigo-300 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-indigo-300 md:text-sm"
+                                whileHover={{ y: -2 }}
+                                transition={{ duration: 0.18, ease: softEase }}
                             >
                                 {link.label}
                                 <svg
@@ -66,7 +86,7 @@ export function ProjectCard({
                                         strokeWidth="1.5"
                                     />
                                 </svg>
-                            </a>
+                            </motion.a>
                         </li>
                     ))}
                 </ul>
