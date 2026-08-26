@@ -27,8 +27,12 @@ export function About() {
                     >
                         <div className="relative aspect-3/4 overflow-hidden rounded-md">
                             <img 
-                                src="/images/profile.jpg"
+                                src="/images/profile.webp"
                                 alt="Nhan Nguyen"
+                                width={960}
+                                height={1280}
+                                loading="lazy"
+                                decoding="async"
                                 className="size-full object-cover"
                             /> 
                         </div>
