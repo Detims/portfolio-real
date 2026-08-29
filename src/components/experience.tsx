@@ -15,7 +15,7 @@ const experiences: ExperienceItem[] = [
         period: "June 2026 — Present",
         organization: "American Society of Mechanical Engineers",
         summary:
-            "Building a Raspberry Pi 4 computer-vision pipeline and ground-control interface for an autonomous glider, combining YOLOv8n detection with OpenCV visualization and live flight telemetry.",
+            "Trained a YOLOv8n object detection model on a 15,000+ image custom Pascal and COCO dataset for OpenCV visualization alongside live flight telemetry.",
     },
     {
         title: "Web Developer",
