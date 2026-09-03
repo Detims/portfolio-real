@@ -1,6 +1,5 @@
 import { lazy, Suspense } from "react";
 import { motion } from "motion/react";
-import { NavLink } from "react-router";
 import {
     fadeDrop,
     softEase,
@@ -15,7 +14,7 @@ const HeroGeometry = lazy(async () => {
 
 export function Home() {
     return(
-        <section className="relative h-screen flex flex-col justify-center items-center overflow-hidden bg-black">
+        <section id="home" className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-black">
             <Suspense fallback={null}>
                 <HeroGeometry />
             </Suspense>
@@ -44,12 +43,12 @@ export function Home() {
                     whileHover={{ y: -2 }}
                     transition={{ duration: 0.18, ease: softEase }}
                 >
-                    <NavLink 
-                        to="/projects"
+                    <a
+                        href="#projects"
                         className="relative rounded-full border-2 border-white/60 bg-white/10 px-8 py-3 font-medium text-white transition-colors duration-200 hover:border-white hover:bg-white/15"
                     >
                         Projects
-                    </NavLink>
+                    </a>
                 </motion.div>
             </motion.div>
         </section>

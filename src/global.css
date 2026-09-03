@@ -6,7 +6,17 @@
   --font-mono: "Geist Mono", ui-monospace, monospace;
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+}
+
 .root {
-  overflow-y: hidden;
   -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
 }
