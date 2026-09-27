@@ -19,6 +19,17 @@ const placeholderProjects: ProjectCardProps[] = [
         ],
     },
     {
+        title: "InboxAssist",
+        description:
+            "An Azure-baseed Google extension for Outlook, utilizing LLM API calls to handle unread email summarization, smart searching, and chatbot functionalities.",
+        image: "/images/inboxassist.png",
+        imageAlt:
+            "InboxAssist menu",
+        links: [
+            { label: "Github", href: "https://github.com/magichouse21/InboxAssist" },
+        ],
+    },
+    {
         title: "OceanGuesser",
         description:
             "A Geoguessr-like game focused entirely on oceans and coastlines with Next.js and Google Maps API.",
@@ -29,17 +40,6 @@ const placeholderProjects: ProjectCardProps[] = [
             { label: "Link", href: "https://ocean-guesser.vercel.app/" },
             { label: "Github", href: "https://github.com/ahpham123/ocean-guesser" },
             { label: "Devpost", href: "https://devpost.com/software/ocean-guesser" }
-        ],
-    },
-    {
-        title: "Facebook Clone",
-        description:
-            "A social network prototype to replicate core features of Facebook.",
-        image: "/images/facebook.png",
-        imageAlt:
-            "Facebook logo",
-        links: [
-            { label: "Github", href: "https://github.com/Detims/facebook-clone" },
         ],
     },
     {
