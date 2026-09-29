@@ -30,13 +30,15 @@ export function HeroGeometry() {
             camera.position.set( -1, 1.5, 4 );
             camera.lookAt(0, 0.5, 0);
 
-            const hemiLight = new THREE.HemisphereLight( 0xffffff, 0x444444, 2);
-            scene.add( hemiLight );
-
-            const dirLight = new THREE.DirectionalLight( 0xFFFFFF, 1 );
-            dirLight.position.set( 5, 5, 5 );
+            const dirLight = new THREE.DirectionalLight( 0xffffff, 3 );
+            dirLight.position.set(-1.5, 4, 6);
             dirLight.castShadow = true;
             scene.add( dirLight );
+
+            const topLight = new THREE.DirectionalLight(0xffffff, 1);
+            dirLight.position.set(-1, 5, 1);
+            dirLight.castShadow = true;
+            scene.add(topLight);
 
             // Floor
 
