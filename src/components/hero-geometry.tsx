@@ -269,12 +269,32 @@ export function HeroGeometry() {
                 return { body, face }
             }
 
+            // Shuffle tiles before adding to the pool/respawning them
+
+            function shuffleFaceOrder(faceOrder: number[]) {
+                for (let index = faceOrder.length - 1; index > 0; index--) {
+                    const swapIndex = Math.floor(Math.random() * (index + 1));
+                    [faceOrder[index], faceOrder[swapIndex]] = [
+                        faceOrder[swapIndex],
+                        faceOrder[index],
+                    ];
+                }
+            }
+
+            const faceOrder = Array.from(
+                { length: faceMaterials.length },
+                (_, index) => index,
+            );
+            shuffleFaceOrder(faceOrder);
+
             // Create tile pool
 
             const tilePool: MahjongTile[] = [];
 
             for (let index = 0; index < TILE_POOL_SIZE; index++ ) {
-                const tile = createMahjongTile(index % 37);
+                const tile = createMahjongTile(
+                    faceOrder[index % faceOrder.length],
+                );
 
                 tile.body.position.set(0, -20, 0);
 
@@ -294,7 +314,7 @@ export function HeroGeometry() {
             function spawnTile() {
                 const tile = tilePool[nextTileIndex];
 
-                tile.face.material = faceMaterials[nextFaceIndex];
+                tile.face.material = faceMaterials[faceOrder[nextFaceIndex]];
 
                 spawnPosition.set(
                     THREE.MathUtils.randFloat(-0.5, 0.5),
@@ -322,7 +342,12 @@ export function HeroGeometry() {
                 );
                 
                 nextTileIndex = (nextTileIndex + 1) % tilePool.length;
-                nextFaceIndex = (nextFaceIndex + 1) % faceMaterials.length;
+                nextFaceIndex++;
+
+                if (nextFaceIndex === faceOrder.length) {
+                    shuffleFaceOrder(faceOrder);
+                    nextFaceIndex = 0;
+                }
             }
 
             function render() {
