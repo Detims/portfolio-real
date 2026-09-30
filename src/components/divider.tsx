@@ -12,7 +12,7 @@ export function Divider({ id, label, children }: DividerProps) {
     return (
         <section
             id={id}
-            className="mx-auto my-24 max-w-7xl px-6 md:my-32 md:px-10"
+            className="mx-auto my-8 max-w-7xl px-6 md:my-12 md:px-10"
         >
             <motion.header
                 className="mb-16 border-b-2 border-white/15 pb-4"

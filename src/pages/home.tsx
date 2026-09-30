@@ -15,6 +15,12 @@ const HeroGeometry = lazy(async () => {
 export function Home() {
     return(
         <section id="home" className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-black">
+            {/* Emergency gradient */}
+            <div 
+                className="pointer-events-none absolute inset-x-0 bottom-0 z-2
+                h-[10%]
+                bg-linear-to-b from-transparent via-black/60 to-black"
+            />
             <Suspense fallback={null}>
                 <HeroGeometry />
             </Suspense>
