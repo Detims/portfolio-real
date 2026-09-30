@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="300"
+    height="400"
+    viewBox="0 0 300 400"
+    role="img"
+    aria-label="Ivory mahjong tile side with deep jade back wrap"
+>
+    <rect width="300" height="400" fill="#F4EDDA" />
+    <rect y="304" width="300" height="96" fill="#125B4A" />
+</svg>
