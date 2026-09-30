@@ -41,24 +41,24 @@ export function HeroGeometry() {
             const scene = new THREE.Scene();
 
             const camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 100 );
-            camera.position.set( -1, 1.5, 4 );
-            camera.lookAt(0, 0.5, 0);
+            camera.position.set( -1.4, 2.2, 6 );
+            camera.lookAt(0, 0.35, 0);
 
-            const povLight = new THREE.SpotLight( 0xffffff, 10, 15);
-            povLight.position.set(-1.5, 4, 6);
+            const povLight = new THREE.SpotLight( 0xffffff, 10, 15, Math.PI / 5, 0.65, 3);
+            povLight.position.set(-1.5, 5, 10);
             povLight.target.position.set(0, 0, 0);
 
             povLight.castShadow = true;
             povLight.shadow.mapSize.set(2048, 2048);
             povLight.shadow.camera.near = 0.5;
-            povLight.shadow.camera.far = 15;
+            povLight.shadow.camera.far = 30;
             povLight.shadow.bias = -0.0001;
 
             scene.add(povLight);
             scene.add(povLight.target);
 
             const spotLight = new THREE.SpotLight(0xffffff, 60, 15, Math.PI / 5, 0.65, 2);
-            spotLight.position.set(-1, 5, 1);
+            spotLight.position.set(-1, 5, 3);
             spotLight.target.position.set(0, 0, 0);
 
             spotLight.castShadow = true;
@@ -73,25 +73,23 @@ export function HeroGeometry() {
 
             // Floor
             
+            const textureLoader = new THREE.TextureLoader();
+            const groundDiffuseMap = textureLoader.load('/images/texture/felt-color.jpg');
+            const groundNormalMap = textureLoader.load('/images/texture/felt-normal.png');
+
             const ground = new THREE.Mesh(
                 new THREE.PlaneGeometry(15, 15),
-                new THREE.MeshStandardMaterial({ color: 0x103413 }),
+                new THREE.MeshStandardMaterial({ 
+                    map: groundDiffuseMap,
+                    normalMap: groundNormalMap,
+                    color: 0x1e6324,
+                    roughness: 0.9,
+                }),
             );
             ground.rotation.x = -Math.PI / 2;
             ground.castShadow = false;
             ground.receiveShadow = true;
             scene.add(ground);
-
-            const shadowPlane = new THREE.Mesh(
-                new THREE.PlaneGeometry(10, 10),
-                new THREE.ShadowMaterial({
-                    color: 0x000000,
-                    opacity: 0.8,
-                }),
-            );
-            shadowPlane.rotation.x = -Math.PI / 2;
-            shadowPlane.receiveShadow = true;
-            scene.add(shadowPlane);
 
             // Physics body of the floor
 
@@ -133,8 +131,6 @@ export function HeroGeometry() {
 
             // Load tile face textures
 
-            const textureLoader = new THREE.TextureLoader();
-
             const [faceTextures, backTexture, sideTexture] = await Promise.all([
                 Promise.all(
                     Array.from({ length: 37 }, (_, index) => {
@@ -170,8 +166,6 @@ export function HeroGeometry() {
                 shellMaterial.dispose();
                 ground.geometry.dispose();
                 ground.material.dispose();
-                shadowPlane.geometry.dispose();
-                shadowPlane.material.dispose();
                 floorCollider.geometry.dispose();
                 floorCollider.material.dispose();
 
@@ -421,9 +415,6 @@ export function HeroGeometry() {
 
                 ground.geometry.dispose();
                 ground.material.dispose();
-
-                shadowPlane.geometry.dispose();
-                shadowPlane.material.dispose();
 
                 floorCollider.geometry.dispose();
                 floorCollider.material.dispose();
