@@ -29,12 +29,12 @@ export function Home() {
                 variants={staggerFadeDrop}
             >
                 <motion.h1
-                    className="font-mono text-5xl font-light text-white md:text-6xl lg:text-8xl"
+                    className="font-mono text-5xl font-light text-white md:text-6xl lg:text-8xl text-shadow-black"
                     variants={fadeDrop}
                 >
                     Nhan Nguyen
                 </motion.h1>
-                <motion.h2 className="mt-8 text-2xl" variants={fadeDrop}>
+                <motion.h2 className="mt-8 text-2xl text-shadow-black" variants={fadeDrop}>
                     Software Engineer
                 </motion.h2>
                 <motion.div
@@ -45,7 +45,7 @@ export function Home() {
                 >
                     <a
                         href="#projects"
-                        className="relative rounded-full border-2 border-white/60 bg-white/10 px-8 py-3 font-medium text-white transition-colors duration-200 hover:border-white hover:bg-white/15"
+                        className="relative rounded-full border-2 border-white/60 bg-white/20 px-8 py-3 font-medium backdrop-blur-sm shadow-lg text-white transition-colors duration-200 hover:border-white hover:bg-white/40"
                     >
                         Projects
                     </a>

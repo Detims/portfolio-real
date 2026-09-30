@@ -1,6 +1,16 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { AmmoPhysics } from "three/addons/physics/AmmoPhysics.js";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+
+type MahjongTile = {
+    body: THREE.Mesh;
+    face: THREE.Mesh;
+};
+
+const TILE_WIDTH = 0.4;
+const TILE_THICKNESS = 0.32;
+const TILE_LENGTH = 0.5;
 
 const SPAWN_INTERVAL = 250;
 const TILE_LIFETIME = 10_000;
@@ -15,16 +25,13 @@ export function HeroGeometry() {
         if (!mount) return;
 
         let cancelled = false;
-        let renderer: THREE.WebGLRenderer | undefined;
-        let spawnInterval: number | undefined;
-
-        let tileGeometry: THREE.BoxGeometry | undefined;
-        let tileMaterial: THREE.MeshStandardMaterial | undefined;
 
         async function initialize(container: HTMLDivElement) {
             const physics = await AmmoPhysics();
 
             if (cancelled) return;
+
+            let spawnInterval: number | undefined;
 
             // Scene, Camera, Lighting
 
@@ -92,35 +99,26 @@ export function HeroGeometry() {
             floorCollider.position.y = -0.25;
             floorCollider.visible = false;
             scene.add( floorCollider );
+            physics.addMesh(floorCollider, 0, 0);
 
-            // Tiles
+            // Tile Shell
 
-            tileGeometry = new THREE.BoxGeometry( 0.5, 0.25 , 1 );
-            tileMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 });
+            const roundedGeometry = new RoundedBoxGeometry( TILE_WIDTH, TILE_THICKNESS, TILE_LENGTH, 4, 0.06 );
+            const shellMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xf4edda,
+                roughness: 0.22,
+                clearcoat: 1,
+                clearcoatRoughness: 0.12,
+            });
 
-            const tiles = new THREE.InstancedMesh( tileGeometry, tileMaterial, TILE_POOL_SIZE );
-            tiles.instanceMatrix.setUsage( THREE.DynamicDrawUsage );
-            tiles.castShadow = true;
-            tiles.receiveShadow = true;
+            // Tile collision
 
-            const hiddenPosition = new THREE.Vector3(0, -20, 0);
-            const matrix = new THREE.Matrix4();
-
-            for (let i = 0; i < TILE_POOL_SIZE; i++) {
-                matrix.makeTranslation(hiddenPosition.x, hiddenPosition.y, hiddenPosition.z);
-                tiles.setMatrixAt(i, matrix);
-            }
-
-            tiles.instanceMatrix.needsUpdate = true;
-            scene.add(tiles);
-
-            // Add physics to objects
-            physics.addMesh(floorCollider, 0); // 0 mass makes it a fixed body
-            physics.addMesh(tiles, 1, 0.1);
+            const colliderGeometry = new THREE.BoxGeometry( TILE_WIDTH, TILE_THICKNESS, TILE_LENGTH );
+            const colliderMaterial = new THREE.MeshBasicMaterial({ visible: false });
 
             // Renderer
 
-            renderer = new THREE.WebGLRenderer( { antialias: true } );
+            const renderer = new THREE.WebGLRenderer( { antialias: true } );
             renderer.setPixelRatio( Math.min(window.devicePixelRatio, 1.5) );
             renderer.shadowMap.enabled = true;
 
@@ -129,6 +127,90 @@ export function HeroGeometry() {
             renderer.domElement.style.height = "100%";
 
             container.appendChild(renderer.domElement);
+
+            // Load tile face textures
+
+            const textureLoader = new THREE.TextureLoader();
+
+            const [faceTextures, backTexture, sideTexture] = await Promise.all([
+                Promise.all(
+                    Array.from({ length: 37 }, (_, index) => {
+                        const filename = String(index + 1).padStart(2, "0");
+
+                        return textureLoader.loadAsync(
+                            `/images/mahjong/${filename}.svg`
+                        );
+                    }),
+                ),
+                textureLoader.loadAsync("/images/mahjong/back.svg"),
+                textureLoader.loadAsync("/images/mahjong/side.svg"),
+            ]);
+
+            const allTextures = [
+                ...faceTextures,
+                backTexture,
+                sideTexture,
+            ];
+
+            if (cancelled) {
+                allTextures.forEach((texture) => {
+                    texture.dispose();
+                });
+
+                return;
+            }
+
+            for (const texture of allTextures) {
+                texture.colorSpace = THREE.SRGBColorSpace;
+                texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
+            }
+
+            // Tile faces
+
+            const faceGeometry = new THREE.PlaneGeometry(
+                TILE_WIDTH * 0.78,
+                TILE_LENGTH * 0.78,
+            );
+
+            const faceMaterials = faceTextures.map(
+                (texture) =>
+                    new THREE.MeshPhysicalMaterial({
+                        map: texture,
+                        transparent: true,
+                        alphaTest: 0.05,
+                        roughness: 0.25,
+                        clearcoat: 0.7,
+                        clearcoatRoughness: 0.15,
+                        polygonOffset: true,
+                        polygonOffsetFactor: -1,
+                    }),
+            );
+
+            const backMaterial = new THREE.MeshPhysicalMaterial({
+                map: backTexture,
+                roughness: 0.22,
+                clearcoat: 1,
+                clearcoatRoughness: 0.12,
+            });
+
+            const sideMaterial = new THREE.MeshPhysicalMaterial({
+                map: sideTexture,
+                roughness: 0.22,
+                clearcoat: 1,
+                clearcoatRoughness: 0.12,
+            });
+
+            // RoundedBoxGeometry keeps BoxGeometry's material group order:
+            // +X, -X, +Y, -Y, +Z, -Z. The symbol decal is on +Y,
+            // so the solid back belongs on -Y and the remaining groups are sides.
+            const shellMaterials: THREE.Material[] = [
+                sideMaterial,
+                sideMaterial,
+                shellMaterial,
+                backMaterial,
+                sideMaterial,
+                sideMaterial,
+            ];
 
             function resize() {
                 if (!renderer) return;
@@ -145,18 +227,66 @@ export function HeroGeometry() {
             resizeObserver.observe(container);
             resize();
 
+            function createMahjongTile(faceIndex: number): MahjongTile {
+                const body = new THREE.Mesh(
+                    colliderGeometry,
+                    colliderMaterial,
+                );
+
+                const shell = new THREE.Mesh(
+                    roundedGeometry,
+                    shellMaterials,
+                );
+
+                shell.castShadow = true;
+                shell.receiveShadow = true;
+                body.add(shell);
+
+                const face = new THREE.Mesh(
+                    faceGeometry,
+                    faceMaterials[faceIndex],
+                );
+
+                face.rotation.x = -Math.PI / 2;
+                face.position.y = TILE_THICKNESS / 2 + 0.003;
+                body.add(face);
+
+                return { body, face }
+            }
+
+            // Create tile pool
+
+            const tilePool: MahjongTile[] = [];
+
+            for (let index = 0; index < TILE_POOL_SIZE; index++ ) {
+                const tile = createMahjongTile(index % 37);
+
+                tile.body.position.set(0, -20, 0);
+
+                scene.add(tile.body);
+                physics.addMesh(tile.body, 1, 0.1);
+
+                tilePool.push(tile);
+            }
+
             let nextTileIndex = 0;
+            let nextFaceIndex = 0;
 
             function spawnTile() {
+                const tile = tilePool[nextTileIndex];
+
+                tile.face.material = faceMaterials[nextFaceIndex];
+
                 const spawnPosition = new THREE.Vector3(
                     THREE.MathUtils.randFloat(-0.5, 0.5),
                     THREE.MathUtils.randFloat(5, 7),
                     THREE.MathUtils.randFloat(-0.5, 0.5),
                 );
                 
-                physics.setMeshPosition(tiles, spawnPosition, nextTileIndex);
+                physics.setMeshPosition(tile.body, spawnPosition);
                 
-                nextTileIndex = (nextTileIndex + 1) % TILE_POOL_SIZE;
+                nextTileIndex = (nextTileIndex + 1) % tilePool.length;
+                nextFaceIndex = (nextFaceIndex + 1) % faceMaterials.length;
             }
 
             function render() {
@@ -196,34 +326,64 @@ export function HeroGeometry() {
 
             visibilityObserver.observe(container);
 
+            // Cleanup
             return () => {
+                if (spawnInterval !== undefined) {
+                    window.clearInterval(spawnInterval);
+                }
+
                 resizeObserver.disconnect();
                 visibilityObserver.disconnect();
+
+                renderer?.setAnimationLoop(null);
+                renderer?.domElement.remove();
+                renderer?.dispose();
+
+                colliderGeometry.dispose();
+                colliderMaterial.dispose();
+                roundedGeometry.dispose();
+                shellMaterial.dispose();
+                faceGeometry.dispose();
+                backMaterial.dispose();
+                sideMaterial.dispose();
+
+                allTextures.forEach((texture) => {
+                    texture.dispose();
+                });
+
+                faceMaterials.forEach((material) => {
+                    material.dispose();
+                });
+
+                ground.geometry.dispose();
+                ground.material.dispose();
+
+                shadowPlane.geometry.dispose();
+                shadowPlane.material.dispose();
+
+                floorCollider.geometry.dispose();
+                floorCollider.material.dispose();
             }
         }
 
-        let disconnectResizeObserver: (() => void) | undefined;
+        let cleanupScene: (() => void) | undefined;
 
         void initialize(mount).then((cleanup) => {
-            disconnectResizeObserver = cleanup;
+            if (!cleanup) return;
+            if (cancelled) {
+                cleanup();
+            } else {
+                cleanupScene = cleanup;
+            }
+        })
+        .catch((error: unknown) => {
+            console.error("Failed to initialize hero scene: ", error);
         });
 
-        // Cleanup
+
         return () => {
             cancelled = true;
-            
-            if (spawnInterval !== undefined) {
-                window.clearInterval(spawnInterval);
-            }
-
-            disconnectResizeObserver?.();
-
-            renderer?.setAnimationLoop(null);
-            renderer?.domElement.remove();
-            renderer?.dispose();
-
-            tileGeometry?.dispose();
-            tileMaterial?.dispose();
+            cleanupScene?.();
         };
     }, []);
 
