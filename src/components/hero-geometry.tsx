@@ -2,6 +2,10 @@ import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { AmmoPhysics } from "three/addons/physics/AmmoPhysics.js";
 
+const SPAWN_INTERVAL = 250;
+const TILE_LIFETIME = 10_000;
+const TILE_POOL_SIZE = Math.ceil(TILE_LIFETIME / SPAWN_INTERVAL);
+
 export function HeroGeometry() {
     const mountRef = useRef<HTMLDivElement>(null);    
 
@@ -93,19 +97,17 @@ export function HeroGeometry() {
 
             tileGeometry = new THREE.BoxGeometry( 0.5, 0.25 , 1 );
             tileMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 });
-            
-            let spawnedTileCount = 0;
-            const maxTileCount = 100;
 
-            const tiles = new THREE.InstancedMesh( tileGeometry, tileMaterial, spawnedTileCount );
+            const tiles = new THREE.InstancedMesh( tileGeometry, tileMaterial, TILE_POOL_SIZE );
             tiles.instanceMatrix.setUsage( THREE.DynamicDrawUsage );
             tiles.castShadow = true;
             tiles.receiveShadow = true;
 
+            const hiddenPosition = new THREE.Vector3(0, -20, 0);
             const matrix = new THREE.Matrix4();
 
-            for (let i = 0; i < tiles.count; i++) {
-                matrix.makeTranslation(0, -20, 0);
+            for (let i = 0; i < TILE_POOL_SIZE; i++) {
+                matrix.makeTranslation(hiddenPosition.x, hiddenPosition.y, hiddenPosition.z);
                 tiles.setMatrixAt(i, matrix);
             }
 
@@ -146,37 +148,19 @@ export function HeroGeometry() {
             resizeObserver.observe(mount);
             resize();
 
+            let nextTileIndex = 0;
+
             spawnInterval = window.setInterval(() => {
-                if (spawnedTileCount >= maxTileCount) {
-                    window.clearInterval(spawnInterval);
-                    return;
-                }
-                
-                const tile = new THREE.Mesh(tileGeometry, tileMaterial);
-        
-                tile.position.set(
+                const spawnPosition = new THREE.Vector3(
                     THREE.MathUtils.randFloat(-0.5, 0.5),
                     THREE.MathUtils.randFloat(5, 7),
                     THREE.MathUtils.randFloat(-0.5, 0.5),
                 );
-
-                tile.quaternion.setFromEuler(
-                    new THREE.Euler(
-                        THREE.MathUtils.randFloat(-Math.PI, Math.PI),
-                        THREE.MathUtils.randFloat(-Math.PI, Math.PI),
-                        THREE.MathUtils.randFloat(-Math.PI, Math.PI),
-                    ),
-                );
-
-                tile.castShadow = true;
-                tile.receiveShadow = true;
-
-                scene.add(tile);
-
-                physics.addMesh(tile, 1, 0.1);
-
-                spawnedTileCount++;
-            }, 250);
+                
+                physics.setMeshPosition(tiles, spawnPosition, nextTileIndex);
+                
+                nextTileIndex = (nextTileIndex + 1) % TILE_POOL_SIZE;
+            }, SPAWN_INTERVAL);
 
             return () => resizeObserver.disconnect();
         }
