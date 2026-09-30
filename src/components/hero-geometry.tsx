@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
-import { AmmoPhysics } from "three/addons/physics/AmmoPhysics.js";
 import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { AmmoPhysics } from "../lib/ammo-physics.js";
 
 type MahjongTile = {
     body: THREE.Mesh;
@@ -29,7 +29,10 @@ export function HeroGeometry() {
         async function initialize(container: HTMLDivElement) {
             const physics = await AmmoPhysics();
 
-            if (cancelled) return;
+            if (cancelled) {
+                physics.dispose();
+                return;
+            }
 
             let spawnInterval: number | undefined;
 
@@ -157,6 +160,21 @@ export function HeroGeometry() {
                     texture.dispose();
                 });
 
+                renderer.domElement.remove();
+                renderer.dispose();
+                physics.dispose();
+
+                colliderGeometry.dispose();
+                colliderMaterial.dispose();
+                roundedGeometry.dispose();
+                shellMaterial.dispose();
+                ground.geometry.dispose();
+                ground.material.dispose();
+                shadowPlane.geometry.dispose();
+                shadowPlane.material.dispose();
+                floorCollider.geometry.dispose();
+                floorCollider.material.dispose();
+
                 return;
             }
 
@@ -200,9 +218,6 @@ export function HeroGeometry() {
                 clearcoatRoughness: 0.12,
             });
 
-            // RoundedBoxGeometry keeps BoxGeometry's material group order:
-            // +X, -X, +Y, -Y, +Z, -Z. The symbol decal is on +Y,
-            // so the solid back belongs on -Y and the remaining groups are sides.
             const shellMaterials: THREE.Material[] = [
                 sideMaterial,
                 sideMaterial,
@@ -271,19 +286,40 @@ export function HeroGeometry() {
 
             let nextTileIndex = 0;
             let nextFaceIndex = 0;
+            const spawnPosition = new THREE.Vector3();
+            const spawnEuler = new THREE.Euler();
+            const spawnRotation = new THREE.Quaternion();
+            const angularVelocity = new THREE.Vector3();
 
             function spawnTile() {
                 const tile = tilePool[nextTileIndex];
 
                 tile.face.material = faceMaterials[nextFaceIndex];
 
-                const spawnPosition = new THREE.Vector3(
+                spawnPosition.set(
                     THREE.MathUtils.randFloat(-0.5, 0.5),
                     THREE.MathUtils.randFloat(5, 7),
                     THREE.MathUtils.randFloat(-0.5, 0.5),
                 );
-                
-                physics.setMeshPosition(tile.body, spawnPosition);
+
+                spawnEuler.set(
+                    THREE.MathUtils.randFloat(-Math.PI, Math.PI),
+                    THREE.MathUtils.randFloat(-Math.PI, Math.PI),
+                    THREE.MathUtils.randFloat(-Math.PI, Math.PI),
+                );
+                spawnRotation.setFromEuler(spawnEuler);
+                angularVelocity.set(
+                    THREE.MathUtils.randFloat(-3, 3),
+                    THREE.MathUtils.randFloat(-3, 3),
+                    THREE.MathUtils.randFloat(-3, 3),
+                );
+
+                physics.setMeshTransform(
+                    tile.body,
+                    spawnPosition,
+                    spawnRotation,
+                    angularVelocity,
+                );
                 
                 nextTileIndex = (nextTileIndex + 1) % tilePool.length;
                 nextFaceIndex = (nextFaceIndex + 1) % faceMaterials.length;
@@ -294,6 +330,7 @@ export function HeroGeometry() {
             }
 
             function startSimulation() {
+                physics.setPaused(false);
                 renderer?.setAnimationLoop(render);
 
                 if (spawnInterval === undefined) {
@@ -302,6 +339,7 @@ export function HeroGeometry() {
             }
 
             function pauseSimulation() {
+                physics.setPaused(true);
                 renderer?.setAnimationLoop(null);
 
                 if (spawnInterval !== undefined) {
@@ -338,6 +376,7 @@ export function HeroGeometry() {
                 renderer?.setAnimationLoop(null);
                 renderer?.domElement.remove();
                 renderer?.dispose();
+                physics.dispose();
 
                 colliderGeometry.dispose();
                 colliderMaterial.dispose();
