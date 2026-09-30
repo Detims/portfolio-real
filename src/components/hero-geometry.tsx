@@ -30,29 +30,54 @@ export function HeroGeometry() {
             camera.position.set( -1, 1.5, 4 );
             camera.lookAt(0, 0.5, 0);
 
-            const dirLight = new THREE.DirectionalLight( 0xffffff, 3 );
-            dirLight.position.set(-1.5, 4, 6);
-            dirLight.castShadow = true;
-            scene.add( dirLight );
+            const povLight = new THREE.SpotLight( 0xffffff, 10, 15);
+            povLight.position.set(-1.5, 4, 6);
+            povLight.target.position.set(0, 0, 0);
 
-            const topLight = new THREE.DirectionalLight(0xffffff, 1);
-            dirLight.position.set(-1, 5, 1);
-            dirLight.castShadow = true;
-            scene.add(topLight);
+            povLight.castShadow = true;
+            povLight.shadow.mapSize.set(2048, 2048);
+            povLight.shadow.camera.near = 0.5;
+            povLight.shadow.camera.far = 15;
+            povLight.shadow.bias = -0.0001;
+
+            scene.add(povLight);
+            scene.add(povLight.target);
+
+            const spotLight = new THREE.SpotLight(0xffffff, 60, 15, Math.PI / 4, 0.65, 2);
+            spotLight.position.set(-1, 5, 1);
+            spotLight.target.position.set(0, 0, 0);
+
+            spotLight.castShadow = true;
+            spotLight.shadow.mapSize.set(2048, 2048);
+            spotLight.shadow.camera.near = 0.5;
+            spotLight.shadow.camera.far = 15;
+            spotLight.shadow.bias = -0.0001;
+            spotLight.shadow.normalBias = 0.02;            
+            
+            scene.add(spotLight);
+            scene.add(spotLight.target)
 
             // Floor
+            
+            const ground = new THREE.Mesh(
+                new THREE.PlaneGeometry(10, 10),
+                new THREE.MeshStandardMaterial({ color: 0x103413 }),
+            );
+            ground.rotation.x = -Math.PI / 2;
+            ground.castShadow = false;
+            ground.receiveShadow = true;
+            scene.add(ground);
 
             const shadowPlane = new THREE.Mesh(
-                new THREE.PlaneGeometry( 10, 10 ),
-                new THREE.ShadowMaterial( {
-                    color: 0x103413,
-                    opacity: 1,
-                } ),
+                new THREE.PlaneGeometry(10, 10),
+                new THREE.ShadowMaterial({
+                    color: 0x000000,
+                    opacity: 0.8,
+                }),
             );
-
             shadowPlane.rotation.x = -Math.PI / 2;
             shadowPlane.receiveShadow = true;
-            scene.add( shadowPlane );
+            scene.add(shadowPlane);
 
             // Physics body of the floor
 
@@ -68,9 +93,11 @@ export function HeroGeometry() {
 
             tileGeometry = new THREE.BoxGeometry( 0.5, 0.25 , 1 );
             tileMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 });
-            const tileCount = 100;
             
-            const tiles = new THREE.InstancedMesh( tileGeometry, tileMaterial, tileCount );
+            let spawnedTileCount = 0;
+            const maxTileCount = 100;
+
+            const tiles = new THREE.InstancedMesh( tileGeometry, tileMaterial, spawnedTileCount );
             tiles.instanceMatrix.setUsage( THREE.DynamicDrawUsage );
             tiles.castShadow = true;
             tiles.receiveShadow = true;
@@ -118,24 +145,38 @@ export function HeroGeometry() {
             const resizeObserver = new ResizeObserver(resize);
             resizeObserver.observe(mount);
             resize();
-        
-            let nextTileIndex: number = 0;
 
             spawnInterval = window.setInterval(() => {
-                if (nextTileIndex >= tiles.count) {
+                if (spawnedTileCount >= maxTileCount) {
                     window.clearInterval(spawnInterval);
                     return;
                 }
-
-                const spawnPosition = new THREE.Vector3(
+                
+                const tile = new THREE.Mesh(tileGeometry, tileMaterial);
+        
+                tile.position.set(
                     THREE.MathUtils.randFloat(-0.5, 0.5),
                     THREE.MathUtils.randFloat(5, 7),
                     THREE.MathUtils.randFloat(-0.5, 0.5),
                 );
 
-                physics.setMeshPosition(tiles, spawnPosition, nextTileIndex);
-                nextTileIndex++;
-            }, 500);
+                tile.quaternion.setFromEuler(
+                    new THREE.Euler(
+                        THREE.MathUtils.randFloat(-Math.PI, Math.PI),
+                        THREE.MathUtils.randFloat(-Math.PI, Math.PI),
+                        THREE.MathUtils.randFloat(-Math.PI, Math.PI),
+                    ),
+                );
+
+                tile.castShadow = true;
+                tile.receiveShadow = true;
+
+                scene.add(tile);
+
+                physics.addMesh(tile, 1, 0.1);
+
+                spawnedTileCount++;
+            }, 250);
 
             return () => resizeObserver.disconnect();
         }
