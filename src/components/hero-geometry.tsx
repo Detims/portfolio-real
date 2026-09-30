@@ -1,422 +1,444 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { RoundedBoxGeometry } from "three/addons/geometries/RoundedBoxGeometry.js";
+import { AmmoPhysics } from "../lib/ammo-physics.js";
 
-const MAX_PIXEL_RATIO = 1.5;
-const DESKTOP_PARTICLE_COUNT = 18_000;
-const COMPACT_PARTICLE_COUNT = 6_000;
-const POINTER_RADIUS = 1.15;
-const POINTER_FORCE = 0.026;
-const RETURN_FORCE = 0.006;
-const VELOCITY_DAMPING = 0.91;
+type MahjongTile = {
+    body: THREE.Mesh;
+    face: THREE.Mesh;
+};
 
-function createParticleTexture() {
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
+const TILE_WIDTH = 0.4;
+const TILE_THICKNESS = 0.32;
+const TILE_LENGTH = 0.5;
 
-    canvas.width = 64;
-    canvas.height = 64;
-
-    if (context) {
-        const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32);
-        gradient.addColorStop(0, "rgba(255, 255, 255, 1)");
-        gradient.addColorStop(0.28, "rgba(229, 231, 255, 0.95)");
-        gradient.addColorStop(0.62, "rgba(129, 140, 248, 0.42)");
-        gradient.addColorStop(1, "rgba(99, 102, 241, 0)");
-        context.fillStyle = gradient;
-        context.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
-    const texture = new THREE.CanvasTexture(canvas);
-    texture.colorSpace = THREE.SRGBColorSpace;
-    return texture;
-}
-
-function createSeededRandom(seed: number) {
-    let state = seed >>> 0;
-
-    return () => {
-        state += 0x6d2b79f5;
-        let value = state;
-        value = Math.imul(value ^ (value >>> 15), value | 1);
-        value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
-        return ((value ^ (value >>> 14)) >>> 0) / 4_294_967_296;
-    };
-}
+const SPAWN_INTERVAL = 250;
+const TILE_LIFETIME = 10_000;
+const TILE_POOL_SIZE = Math.ceil(TILE_LIFETIME / SPAWN_INTERVAL);
 
 export function HeroGeometry() {
-    const mountRef = useRef<HTMLDivElement>(null);
+    const mountRef = useRef<HTMLDivElement>(null);    
 
     useEffect(() => {
         const mount = mountRef.current;
 
-        if (!mount) {
-            return;
-        }
+        if (!mount) return;
 
-        const reducedMotionQuery = window.matchMedia(
-            "(prefers-reduced-motion: reduce)",
-        );
-        const coarsePointerQuery = window.matchMedia("(pointer: coarse)");
-        const isCompact = coarsePointerQuery.matches || mount.clientWidth < 768;
-        const particleCount = isCompact
-            ? COMPACT_PARTICLE_COUNT
-            : DESKTOP_PARTICLE_COUNT;
+        let cancelled = false;
 
-        let renderer: THREE.WebGLRenderer;
+        async function initialize(container: HTMLDivElement) {
+            const physics = await AmmoPhysics();
 
-        try {
-            renderer = new THREE.WebGLRenderer({
-                alpha: true,
-                antialias: !isCompact,
-                powerPreference: "high-performance",
+            if (cancelled) {
+                physics.dispose();
+                return;
+            }
+
+            let spawnInterval: number | undefined;
+
+            // Scene, Camera, Lighting
+
+            const scene = new THREE.Scene();
+
+            const camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 100 );
+            camera.position.set( -1.4, 2.2, 6 );
+            camera.lookAt(0, 0.35, 0);
+
+            const povLight = new THREE.SpotLight( 0xffffff, 10, 15, Math.PI / 5, 0.65, 3);
+            povLight.position.set(-1.5, 5, 10);
+            povLight.target.position.set(0, 0, 0);
+
+            povLight.castShadow = true;
+            povLight.shadow.mapSize.set(2048, 2048);
+            povLight.shadow.camera.near = 0.5;
+            povLight.shadow.camera.far = 30;
+            povLight.shadow.bias = -0.0001;
+
+            scene.add(povLight);
+            scene.add(povLight.target);
+
+            const spotLight = new THREE.SpotLight(0xffffff, 60, 15, Math.PI / 5, 0.65, 2);
+            spotLight.position.set(-1, 5, 3);
+            spotLight.target.position.set(0, 0, 0);
+
+            spotLight.castShadow = true;
+            spotLight.shadow.mapSize.set(2048, 2048);
+            spotLight.shadow.camera.near = 0.5;
+            spotLight.shadow.camera.far = 15;
+            spotLight.shadow.bias = -0.0001;
+            spotLight.shadow.normalBias = 0.02;            
+            
+            scene.add(spotLight);
+            scene.add(spotLight.target)
+
+            // Floor
+            
+            const textureLoader = new THREE.TextureLoader();
+            const groundDiffuseMap = textureLoader.load('/images/texture/felt-color.jpg');
+            const groundNormalMap = textureLoader.load('/images/texture/felt-normal.png');
+
+            const ground = new THREE.Mesh(
+                new THREE.PlaneGeometry(15, 15),
+                new THREE.MeshStandardMaterial({ 
+                    map: groundDiffuseMap,
+                    normalMap: groundNormalMap,
+                    color: 0x1e6324,
+                    roughness: 0.9,
+                }),
+            );
+            ground.rotation.x = -Math.PI / 2;
+            ground.castShadow = false;
+            ground.receiveShadow = true;
+            scene.add(ground);
+
+            // Physics body of the floor
+
+            const floorCollider = new THREE.Mesh(
+                new THREE.BoxGeometry( 10, 0.5, 10 ),
+                new THREE.MeshBasicMaterial()
+            );
+            floorCollider.position.y = -0.25;
+            floorCollider.visible = false;
+            scene.add( floorCollider );
+            physics.addMesh(floorCollider, 0, 0);
+
+            // Tile Shell
+
+            const roundedGeometry = new RoundedBoxGeometry( TILE_WIDTH, TILE_THICKNESS, TILE_LENGTH, 4, 0.06 );
+            const shellMaterial = new THREE.MeshPhysicalMaterial({
+                color: 0xf4edda,
+                roughness: 0.22,
+                clearcoat: 1,
+                clearcoatRoughness: 0.12,
             });
-        } catch {
-            return;
-        }
 
-        renderer.setClearColor(0x000000, 0);
-        renderer.setPixelRatio(
-            Math.min(window.devicePixelRatio, MAX_PIXEL_RATIO),
-        );
-        renderer.outputColorSpace = THREE.SRGBColorSpace;
-        renderer.domElement.style.display = "block";
-        renderer.domElement.style.height = "100%";
-        renderer.domElement.style.width = "100%";
-        mount.appendChild(renderer.domElement);
+            // Tile collision
 
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-        camera.position.set(0, 0, 7.5);
+            const colliderGeometry = new THREE.BoxGeometry( TILE_WIDTH, TILE_THICKNESS, TILE_LENGTH );
+            const colliderMaterial = new THREE.MeshBasicMaterial({ visible: false });
 
-        const sourceGeometry = new THREE.IcosahedronGeometry(2.25, 1);
-        const samplingGeometry = sourceGeometry.index
-            ? sourceGeometry.toNonIndexed()
-            : sourceGeometry;
-        const sourcePositions = samplingGeometry.getAttribute("position");
-        const triangleCount = sourcePositions.count / 3;
-        const positions = new Float32Array(particleCount * 3);
-        const originalPositions = new Float32Array(particleCount * 3);
-        const velocities = new Float32Array(particleCount * 3);
-        const colors = new Float32Array(particleCount * 3);
-        const random = createSeededRandom(0x1c05a);
-        const color = new THREE.Color();
+            // Renderer
 
-        for (let particle = 0; particle < particleCount; particle += 1) {
-            const triangle = Math.floor(random() * triangleCount) * 3;
-            let barycentricU = random();
-            let barycentricV = random();
+            const renderer = new THREE.WebGLRenderer( { antialias: true } );
+            renderer.setPixelRatio( Math.min(window.devicePixelRatio, 1.5) );
+            renderer.shadowMap.enabled = true;
 
-            if (barycentricU + barycentricV > 1) {
-                barycentricU = 1 - barycentricU;
-                barycentricV = 1 - barycentricV;
-            }
+            renderer.domElement.style.display = "block";
+            renderer.domElement.style.width = "100%";
+            renderer.domElement.style.height = "100%";
 
-            const ax = sourcePositions.getX(triangle);
-            const ay = sourcePositions.getY(triangle);
-            const az = sourcePositions.getZ(triangle);
-            const bx = sourcePositions.getX(triangle + 1);
-            const by = sourcePositions.getY(triangle + 1);
-            const bz = sourcePositions.getZ(triangle + 1);
-            const cx = sourcePositions.getX(triangle + 2);
-            const cy = sourcePositions.getY(triangle + 2);
-            const cz = sourcePositions.getZ(triangle + 2);
-            const positionIndex = particle * 3;
+            container.appendChild(renderer.domElement);
 
-            positions[positionIndex] =
-                ax + barycentricU * (bx - ax) + barycentricV * (cx - ax);
-            positions[positionIndex + 1] =
-                ay + barycentricU * (by - ay) + barycentricV * (cy - ay);
-            positions[positionIndex + 2] =
-                az + barycentricU * (bz - az) + barycentricV * (cz - az);
-            originalPositions[positionIndex] = positions[positionIndex];
-            originalPositions[positionIndex + 1] = positions[positionIndex + 1];
-            originalPositions[positionIndex + 2] = positions[positionIndex + 2];
+            // Load tile face textures
 
-            color.setHSL(
-                0.62 + random() * 0.085,
-                0.82 + random() * 0.14,
-                0.58 + random() * 0.15,
-            );
-            colors[positionIndex] = color.r;
-            colors[positionIndex + 1] = color.g;
-            colors[positionIndex + 2] = color.b;
-        }
+            const [faceTextures, backTexture, sideTexture] = await Promise.all([
+                Promise.all(
+                    Array.from({ length: 37 }, (_, index) => {
+                        const filename = String(index + 1).padStart(2, "0");
 
-        if (samplingGeometry !== sourceGeometry) {
-            samplingGeometry.dispose();
-        }
-        sourceGeometry.dispose();
+                        return textureLoader.loadAsync(
+                            `/images/mahjong/${filename}.svg`
+                        );
+                    }),
+                ),
+                textureLoader.loadAsync("/images/mahjong/back.svg"),
+                textureLoader.loadAsync("/images/mahjong/side.svg"),
+            ]);
 
-        const particleGeometry = new THREE.BufferGeometry();
-        const positionAttribute = new THREE.BufferAttribute(positions, 3);
-        positionAttribute.setUsage(THREE.DynamicDrawUsage);
-        particleGeometry.setAttribute("position", positionAttribute);
-        particleGeometry.setAttribute(
-            "color",
-            new THREE.BufferAttribute(colors, 3),
-        );
-        particleGeometry.computeBoundingSphere();
+            const allTextures = [
+                ...faceTextures,
+                backTexture,
+                sideTexture,
+            ];
 
-        const particleTexture = createParticleTexture();
-        const particleMaterial = new THREE.PointsMaterial({
-            alphaTest: 0.001,
-            blending: THREE.AdditiveBlending,
-            depthWrite: false,
-            map: particleTexture,
-            opacity: reducedMotionQuery.matches ? 0.78 : 0,
-            size: isCompact ? 0.042 : 0.034,
-            sizeAttenuation: true,
-            transparent: true,
-            vertexColors: true,
-        });
-        const particles = new THREE.Points(particleGeometry, particleMaterial);
-        particles.rotation.set(-0.16, 0.34, 0.07);
-        scene.add(particles);
+            if (cancelled) {
+                allTextures.forEach((texture) => {
+                    texture.dispose();
+                });
 
-        const interactionGeometry = new THREE.IcosahedronGeometry(2.25, 1);
-        const interactionMaterial = new THREE.MeshBasicMaterial({
-            visible: false,
-        });
-        const interactionMesh = new THREE.Mesh(
-            interactionGeometry,
-            interactionMaterial,
-        );
-        const pointer = new THREE.Vector2(2, 2);
-        const pointerLocalPosition = new THREE.Vector3();
-        const raycaster = new THREE.Raycaster();
-        const clock = new THREE.Clock();
+                renderer.domElement.remove();
+                renderer.dispose();
+                physics.dispose();
 
-        let animationFrame = 0;
-        let pointerIsWithinHero = false;
-        let reducedMotion = reducedMotionQuery.matches;
-        let fadeStartedAt = 0;
-        let activeParticleCount = particleCount;
+                colliderGeometry.dispose();
+                colliderMaterial.dispose();
+                roundedGeometry.dispose();
+                shellMaterial.dispose();
+                ground.geometry.dispose();
+                ground.material.dispose();
+                floorCollider.geometry.dispose();
+                floorCollider.material.dispose();
 
-        const renderStaticFrame = () => {
-            positions.set(originalPositions);
-            velocities.fill(0);
-            positionAttribute.needsUpdate = true;
-            particles.rotation.set(-0.16, 0.34, 0.07);
-            particleMaterial.opacity = 0.78;
-            renderer.render(scene, camera);
-        };
-
-        const updateSize = () => {
-            const width = Math.max(mount.clientWidth, 1);
-            const height = Math.max(mount.clientHeight, 1);
-            const heightScale = THREE.MathUtils.clamp(height / 760, 0.72, 1);
-
-            camera.aspect = width / height;
-            camera.updateProjectionMatrix();
-            renderer.setSize(width, height, false);
-            activeParticleCount =
-                width < 768
-                    ? Math.min(COMPACT_PARTICLE_COUNT, particleCount)
-                    : particleCount;
-            particleGeometry.setDrawRange(0, activeParticleCount);
-            particleMaterial.size = width < 768 ? 0.042 : 0.034;
-            particles.scale.setScalar((width < 768 ? 0.73 : 1) * heightScale);
-
-            if (reducedMotion) {
-                renderStaticFrame();
-            }
-        };
-
-        const handlePointerMove = (event: PointerEvent) => {
-            const bounds = mount.getBoundingClientRect();
-            const isInside =
-                event.clientX >= bounds.left &&
-                event.clientX <= bounds.right &&
-                event.clientY >= bounds.top &&
-                event.clientY <= bounds.bottom;
-
-            pointerIsWithinHero = isInside;
-
-            if (!isInside || bounds.width === 0 || bounds.height === 0) {
-                pointer.set(2, 2);
                 return;
             }
 
-            pointer.set(
-                ((event.clientX - bounds.left) / bounds.width) * 2 - 1,
-                -((event.clientY - bounds.top) / bounds.height) * 2 + 1,
-            );
-        };
-
-        const deactivatePointer = () => {
-            pointerIsWithinHero = false;
-            pointer.set(2, 2);
-        };
-
-        const animate = (time: number) => {
-            animationFrame = 0;
-
-            if (reducedMotion) {
-                renderStaticFrame();
-                return;
+            for (const texture of allTextures) {
+                texture.colorSpace = THREE.SRGBColorSpace;
+                texture.anisotropy = renderer.capabilities.getMaxAnisotropy();
             }
 
-            const frameScale = Math.min(clock.getDelta() * 60, 2);
-            const elapsed = clock.elapsedTime;
-            particleMaterial.opacity = Math.min(
-                0.8,
-                ((time - fadeStartedAt) / 1_300) * 0.8,
+            // Tile faces
+
+            const faceGeometry = new THREE.PlaneGeometry(
+                TILE_WIDTH * 0.78,
+                TILE_LENGTH * 0.78,
             );
-            particles.rotation.y = 0.34 + elapsed * 0.045;
-            particles.rotation.x = -0.16 + Math.sin(elapsed * 0.2) * 0.025;
-            particles.rotation.z = 0.07 + Math.sin(elapsed * 0.16) * 0.018;
 
-            let pointerIsActive = false;
+            const faceMaterials = faceTextures.map(
+                (texture) =>
+                    new THREE.MeshPhysicalMaterial({
+                        map: texture,
+                        transparent: true,
+                        alphaTest: 0.05,
+                        roughness: 0.25,
+                        clearcoat: 0.7,
+                        clearcoatRoughness: 0.15,
+                        polygonOffset: true,
+                        polygonOffsetFactor: -1,
+                    }),
+            );
 
-            if (pointerIsWithinHero && !coarsePointerQuery.matches) {
-                particles.updateMatrixWorld();
-                interactionMesh.matrixWorld.copy(particles.matrixWorld);
-                raycaster.setFromCamera(pointer, camera);
-                const intersection = raycaster.intersectObject(
-                    interactionMesh,
-                    false,
-                )[0];
-                pointerIsActive = Boolean(intersection);
+            const backMaterial = new THREE.MeshPhysicalMaterial({
+                map: backTexture,
+                roughness: 0.22,
+                clearcoat: 1,
+                clearcoatRoughness: 0.12,
+            });
 
-                if (intersection) {
-                    pointerLocalPosition.copy(intersection.point);
-                    particles.worldToLocal(pointerLocalPosition);
+            const sideMaterial = new THREE.MeshPhysicalMaterial({
+                map: sideTexture,
+                roughness: 0.22,
+                clearcoat: 1,
+                clearcoatRoughness: 0.12,
+            });
+
+            const shellMaterials: THREE.Material[] = [
+                sideMaterial,
+                sideMaterial,
+                shellMaterial,
+                backMaterial,
+                sideMaterial,
+                sideMaterial,
+            ];
+
+            function resize() {
+                if (!renderer) return;
+
+                const width = Math.max(container.clientWidth, 1);
+                const height = Math.max(container.clientHeight, 1);
+
+                camera.aspect = width / height;
+                camera.updateProjectionMatrix();
+                renderer.setSize(width, height, false);
+            }
+
+            const resizeObserver = new ResizeObserver(resize);
+            resizeObserver.observe(container);
+            resize();
+
+            function createMahjongTile(faceIndex: number): MahjongTile {
+                const body = new THREE.Mesh(
+                    colliderGeometry,
+                    colliderMaterial,
+                );
+
+                const shell = new THREE.Mesh(
+                    roundedGeometry,
+                    shellMaterials,
+                );
+
+                shell.castShadow = true;
+                shell.receiveShadow = true;
+                body.add(shell);
+
+                const face = new THREE.Mesh(
+                    faceGeometry,
+                    faceMaterials[faceIndex],
+                );
+
+                face.rotation.x = -Math.PI / 2;
+                face.position.y = TILE_THICKNESS / 2 + 0.003;
+                body.add(face);
+
+                return { body, face }
+            }
+
+            // Shuffle tiles before adding to the pool/respawning them
+
+            function shuffleFaceOrder(faceOrder: number[]) {
+                for (let index = faceOrder.length - 1; index > 0; index--) {
+                    const swapIndex = Math.floor(Math.random() * (index + 1));
+                    [faceOrder[index], faceOrder[swapIndex]] = [
+                        faceOrder[swapIndex],
+                        faceOrder[index],
+                    ];
                 }
             }
 
-            const activePositionLength = activeParticleCount * 3;
+            const faceOrder = Array.from(
+                { length: faceMaterials.length },
+                (_, index) => index,
+            );
+            shuffleFaceOrder(faceOrder);
 
-            for (let index = 0; index < activePositionLength; index += 3) {
-                let velocityX = velocities[index];
-                let velocityY = velocities[index + 1];
-                let velocityZ = velocities[index + 2];
+            // Create tile pool
 
-                if (pointerIsActive) {
-                    const offsetX = positions[index] - pointerLocalPosition.x;
-                    const offsetY = positions[index + 1] - pointerLocalPosition.y;
-                    const offsetZ = positions[index + 2] - pointerLocalPosition.z;
-                    const distanceSquared =
-                        offsetX * offsetX +
-                        offsetY * offsetY +
-                        offsetZ * offsetZ;
+            const tilePool: MahjongTile[] = [];
 
-                    if (
-                        distanceSquared > 0.0001 &&
-                        distanceSquared < POINTER_RADIUS * POINTER_RADIUS
-                    ) {
-                        const distance = Math.sqrt(distanceSquared);
-                        const force =
-                            (1 - distance / POINTER_RADIUS) *
-                            POINTER_FORCE *
-                            frameScale;
-                        velocityX += (offsetX / distance) * force;
-                        velocityY += (offsetY / distance) * force;
-                        velocityZ += (offsetZ / distance) * force;
+            for (let index = 0; index < TILE_POOL_SIZE; index++ ) {
+                const tile = createMahjongTile(
+                    faceOrder[index % faceOrder.length],
+                );
+
+                tile.body.position.set(0, -20, 0);
+
+                scene.add(tile.body);
+                physics.addMesh(tile.body, 1, 0.1);
+
+                tilePool.push(tile);
+            }
+
+            let nextTileIndex = 0;
+            let nextFaceIndex = 0;
+            const spawnPosition = new THREE.Vector3();
+            const spawnEuler = new THREE.Euler();
+            const spawnRotation = new THREE.Quaternion();
+            const angularVelocity = new THREE.Vector3();
+
+            function spawnTile() {
+                const tile = tilePool[nextTileIndex];
+
+                tile.face.material = faceMaterials[faceOrder[nextFaceIndex]];
+
+                spawnPosition.set(
+                    THREE.MathUtils.randFloat(-0.5, 0.5),
+                    THREE.MathUtils.randFloat(5, 7),
+                    THREE.MathUtils.randFloat(-0.5, 0.5),
+                );
+
+                spawnEuler.set(
+                    THREE.MathUtils.randFloat(-Math.PI, Math.PI),
+                    THREE.MathUtils.randFloat(-Math.PI, Math.PI),
+                    THREE.MathUtils.randFloat(-Math.PI, Math.PI),
+                );
+                spawnRotation.setFromEuler(spawnEuler);
+                angularVelocity.set(
+                    THREE.MathUtils.randFloat(-3, 3),
+                    THREE.MathUtils.randFloat(-3, 3),
+                    THREE.MathUtils.randFloat(-3, 3),
+                );
+
+                physics.setMeshTransform(
+                    tile.body,
+                    spawnPosition,
+                    spawnRotation,
+                    angularVelocity,
+                );
+                
+                nextTileIndex = (nextTileIndex + 1) % tilePool.length;
+                nextFaceIndex++;
+
+                if (nextFaceIndex === faceOrder.length) {
+                    shuffleFaceOrder(faceOrder);
+                    nextFaceIndex = 0;
+                }
+            }
+
+            function render() {
+                renderer?.render(scene, camera);
+            }
+
+            function startSimulation() {
+                physics.setPaused(false);
+                renderer?.setAnimationLoop(render);
+
+                if (spawnInterval === undefined) {
+                    spawnInterval = window.setInterval(spawnTile, SPAWN_INTERVAL);
+                }
+            }
+
+            function pauseSimulation() {
+                physics.setPaused(true);
+                renderer?.setAnimationLoop(null);
+
+                if (spawnInterval !== undefined) {
+                    window.clearInterval(spawnInterval);
+                    spawnInterval = undefined;
+                }
+            }
+            
+            // Used to detect whether user has scrolled past hero
+            const visibilityObserver = new IntersectionObserver(
+                ([entry]) => {
+                    if (entry.isIntersecting) {
+                        startSimulation();
+                    } else {
+                        pauseSimulation();
                     }
+                },
+                {
+                    threshold: 0.05,
+                },
+            );
+
+            visibilityObserver.observe(container);
+
+            // Cleanup
+            return () => {
+                if (spawnInterval !== undefined) {
+                    window.clearInterval(spawnInterval);
                 }
 
-                velocityX +=
-                    (originalPositions[index] - positions[index]) *
-                    RETURN_FORCE *
-                    frameScale;
-                velocityY +=
-                    (originalPositions[index + 1] - positions[index + 1]) *
-                    RETURN_FORCE *
-                    frameScale;
-                velocityZ +=
-                    (originalPositions[index + 2] - positions[index + 2]) *
-                    RETURN_FORCE *
-                    frameScale;
+                resizeObserver.disconnect();
+                visibilityObserver.disconnect();
 
-                const damping = Math.pow(VELOCITY_DAMPING, frameScale);
-                velocityX *= damping;
-                velocityY *= damping;
-                velocityZ *= damping;
-                velocities[index] = velocityX;
-                velocities[index + 1] = velocityY;
-                velocities[index + 2] = velocityZ;
-                positions[index] += velocityX * frameScale;
-                positions[index + 1] += velocityY * frameScale;
-                positions[index + 2] += velocityZ * frameScale;
+                renderer?.setAnimationLoop(null);
+                renderer?.domElement.remove();
+                renderer?.dispose();
+                physics.dispose();
+
+                colliderGeometry.dispose();
+                colliderMaterial.dispose();
+                roundedGeometry.dispose();
+                shellMaterial.dispose();
+                faceGeometry.dispose();
+                backMaterial.dispose();
+                sideMaterial.dispose();
+
+                allTextures.forEach((texture) => {
+                    texture.dispose();
+                });
+
+                faceMaterials.forEach((material) => {
+                    material.dispose();
+                });
+
+                ground.geometry.dispose();
+                ground.material.dispose();
+
+                floorCollider.geometry.dispose();
+                floorCollider.material.dispose();
             }
+        }
 
-            positionAttribute.needsUpdate = true;
-            renderer.render(scene, camera);
-            animationFrame = window.requestAnimationFrame(animate);
-        };
+        let cleanupScene: (() => void) | undefined;
 
-        const startAnimation = () => {
-            if (!reducedMotion && animationFrame === 0) {
-                clock.start();
-                fadeStartedAt = performance.now();
-                animationFrame = window.requestAnimationFrame(animate);
-            }
-        };
-
-        const handleMotionPreferenceChange = (
-            event: MediaQueryListEvent,
-        ) => {
-            reducedMotion = event.matches;
-
-            if (reducedMotion) {
-                window.cancelAnimationFrame(animationFrame);
-                animationFrame = 0;
-                deactivatePointer();
-                renderStaticFrame();
+        void initialize(mount).then((cleanup) => {
+            if (!cleanup) return;
+            if (cancelled) {
+                cleanup();
             } else {
-                particleMaterial.opacity = 0;
-                startAnimation();
+                cleanupScene = cleanup;
             }
-        };
+        })
+        .catch((error: unknown) => {
+            console.error("Failed to initialize hero scene: ", error);
+        });
 
-        const resizeObserver = new ResizeObserver(updateSize);
-        resizeObserver.observe(mount);
-        reducedMotionQuery.addEventListener(
-            "change",
-            handleMotionPreferenceChange,
-        );
-
-        if (!coarsePointerQuery.matches) {
-            window.addEventListener("pointermove", handlePointerMove, {
-                passive: true,
-            });
-            window.addEventListener("blur", deactivatePointer);
-            document.documentElement.addEventListener(
-                "pointerleave",
-                deactivatePointer,
-            );
-        }
-
-        updateSize();
-
-        if (reducedMotion) {
-            renderStaticFrame();
-        } else {
-            startAnimation();
-        }
 
         return () => {
-            window.cancelAnimationFrame(animationFrame);
-            resizeObserver.disconnect();
-            reducedMotionQuery.removeEventListener(
-                "change",
-                handleMotionPreferenceChange,
-            );
-            window.removeEventListener("pointermove", handlePointerMove);
-            window.removeEventListener("blur", deactivatePointer);
-            document.documentElement.removeEventListener(
-                "pointerleave",
-                deactivatePointer,
-            );
-
-            particleGeometry.dispose();
-            particleMaterial.dispose();
-            particleTexture.dispose();
-            interactionGeometry.dispose();
-            interactionMaterial.dispose();
-            renderer.dispose();
-            renderer.forceContextLoss();
-            renderer.domElement.remove();
+            cancelled = true;
+            cleanupScene?.();
         };
     }, []);
 

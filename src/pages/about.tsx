@@ -10,7 +10,7 @@ import {
 
 export function About() {
     return(
-        <>
+        <div className="my-12 md:my-24">
             <Divider label="About" id="about">
                 <motion.div
                     className="flex flex-col items-center justify-center gap-12 lg:flex-row"
@@ -50,6 +50,6 @@ export function About() {
                 </motion.div>
             </Divider>
             <Experience />
-        </>
+        </div>
     );
 }

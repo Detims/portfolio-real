@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
-import { useLocation } from "react-router";
 import { softEase } from "../lib/motion";
 
 const navLinks = [
@@ -30,28 +29,31 @@ const mobileItemVariants = {
 };
 
 export function TopNavigation() {
-    const location = useLocation();
     const [open, setOpen] = useState(false);
     const [activeSection, setActiveSection] = useState(() =>
         window.location.hash.slice(1) || "home",
     );
 
     useEffect(() => {
-        const sectionId = location.hash.slice(1);
+        const updateSectionFromHash = () => {
+            const sectionId = window.location.hash.slice(1);
 
-        if (!navLinks.some(({ id }) => id === sectionId)) {
-            return;
-        }
+            if (navLinks.some(({ id }) => id === sectionId)) {
+                setActiveSection(sectionId);
+            }
+        };
 
-        const animationFrame = window.requestAnimationFrame(() => {
-            setActiveSection(sectionId);
-        });
+        updateSectionFromHash();
+        window.addEventListener("hashchange", updateSectionFromHash);
 
-        return () => window.cancelAnimationFrame(animationFrame);
-    }, [location.hash]);
+        return () => {
+            window.removeEventListener("hashchange", updateSectionFromHash);
+        };
+    }, []);
 
     useEffect(() => {
         let animationFrame = 0;
+        let initializationFrame = 0;
 
         const updateActiveSection = () => {
             const activationPoint =
@@ -67,6 +69,16 @@ export function TopNavigation() {
 
             if (currentSection) {
                 setActiveSection(currentSection.id);
+
+                const nextHash = `#${currentSection.id}`;
+
+                if (window.location.hash !== nextHash) {
+                    window.history.replaceState(
+                        window.history.state,
+                        "",
+                        `${window.location.pathname}${window.location.search}${nextHash}`,
+                    );
+                }
             }
 
             animationFrame = 0;
@@ -80,13 +92,38 @@ export function TopNavigation() {
             }
         };
 
-        updateActiveSection();
-        window.addEventListener("scroll", scheduleUpdate, { passive: true });
-        window.addEventListener("resize", scheduleUpdate);
+        const initializeScrollTracking = () => {
+            const sectionId = decodeURIComponent(
+                window.location.hash.slice(1),
+            );
+            const initialSection = navLinks.some(({ id }) => id === sectionId)
+                ? document.getElementById(sectionId)
+                : null;
+
+            if (initialSection && window.scrollY === 0) {
+                const root = document.documentElement;
+                const previousScrollBehavior = root.style.scrollBehavior;
+
+                root.style.scrollBehavior = "auto";
+                initialSection.scrollIntoView({ block: "start" });
+                root.style.scrollBehavior = previousScrollBehavior;
+            }
+
+            updateActiveSection();
+            window.addEventListener("scroll", scheduleUpdate, {
+                passive: true,
+            });
+            window.addEventListener("resize", scheduleUpdate);
+        };
+
+        initializationFrame = window.requestAnimationFrame(
+            initializeScrollTracking,
+        );
 
         return () => {
             window.removeEventListener("scroll", scheduleUpdate);
             window.removeEventListener("resize", scheduleUpdate);
+            window.cancelAnimationFrame(initializationFrame);
             window.cancelAnimationFrame(animationFrame);
         };
     }, []);
