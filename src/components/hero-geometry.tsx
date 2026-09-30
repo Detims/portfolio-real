@@ -47,7 +47,7 @@ export function HeroGeometry() {
             scene.add(povLight);
             scene.add(povLight.target);
 
-            const spotLight = new THREE.SpotLight(0xffffff, 60, 15, Math.PI / 4, 0.65, 2);
+            const spotLight = new THREE.SpotLight(0xffffff, 60, 15, Math.PI / 5, 0.65, 2);
             spotLight.position.set(-1, 5, 1);
             spotLight.target.position.set(0, 0, 0);
 
@@ -64,7 +64,7 @@ export function HeroGeometry() {
             // Floor
             
             const ground = new THREE.Mesh(
-                new THREE.PlaneGeometry(10, 10),
+                new THREE.PlaneGeometry(15, 15),
                 new THREE.MeshStandardMaterial({ color: 0x103413 }),
             );
             ground.rotation.x = -Math.PI / 2;
@@ -123,9 +123,6 @@ export function HeroGeometry() {
             renderer = new THREE.WebGLRenderer( { antialias: true } );
             renderer.setPixelRatio( Math.min(window.devicePixelRatio, 1.5) );
             renderer.shadowMap.enabled = true;
-            renderer.setAnimationLoop(() => {
-                renderer?.render(scene, camera);
-            });
 
             renderer.domElement.style.display = "block";
             renderer.domElement.style.width = "100%";
@@ -150,7 +147,7 @@ export function HeroGeometry() {
 
             let nextTileIndex = 0;
 
-            spawnInterval = window.setInterval(() => {
+            function spawnTile() {
                 const spawnPosition = new THREE.Vector3(
                     THREE.MathUtils.randFloat(-0.5, 0.5),
                     THREE.MathUtils.randFloat(5, 7),
@@ -160,9 +157,49 @@ export function HeroGeometry() {
                 physics.setMeshPosition(tiles, spawnPosition, nextTileIndex);
                 
                 nextTileIndex = (nextTileIndex + 1) % TILE_POOL_SIZE;
-            }, SPAWN_INTERVAL);
+            }
 
-            return () => resizeObserver.disconnect();
+            function render() {
+                renderer?.render(scene, camera);
+            }
+
+            function startSimulation() {
+                renderer?.setAnimationLoop(render);
+
+                if (spawnInterval === undefined) {
+                    spawnInterval = window.setInterval(spawnTile, SPAWN_INTERVAL);
+                }
+            }
+
+            function pauseSimulation() {
+                renderer?.setAnimationLoop(null);
+
+                if (spawnInterval !== undefined) {
+                    window.clearInterval(spawnInterval);
+                    spawnInterval = undefined;
+                }
+            }
+            
+            // Used to detect whether user has scrolled past hero
+            const visibilityObserver = new IntersectionObserver(
+                ([entry]) => {
+                    if (entry.isIntersecting) {
+                        startSimulation();
+                    } else {
+                        pauseSimulation();
+                    }
+                },
+                {
+                    threshold: 0.05,
+                },
+            );
+
+            visibilityObserver.observe(mount);
+
+            return () => {
+                resizeObserver.disconnect();
+                visibilityObserver.disconnect();
+            }
         }
 
         let disconnectResizeObserver: (() => void) | undefined;
@@ -171,6 +208,7 @@ export function HeroGeometry() {
             disconnectResizeObserver = cleanup;
         });
 
+        // Cleanup
         return () => {
             cancelled = true;
             
