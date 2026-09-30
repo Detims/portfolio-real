@@ -21,7 +21,7 @@ export function HeroGeometry() {
         let tileGeometry: THREE.BoxGeometry | undefined;
         let tileMaterial: THREE.MeshStandardMaterial | undefined;
 
-        async function initialize() {
+        async function initialize(container: HTMLDivElement) {
             const physics = await AmmoPhysics();
 
             if (cancelled) return;
@@ -128,13 +128,13 @@ export function HeroGeometry() {
             renderer.domElement.style.width = "100%";
             renderer.domElement.style.height = "100%";
 
-            mount?.appendChild(renderer.domElement);
+            container.appendChild(renderer.domElement);
 
             function resize() {
                 if (!renderer) return;
 
-                const width = Math.max(mount?.clientWidth, 1);
-                const height = Math.max(mount?.clientHeight, 1);
+                const width = Math.max(container.clientWidth, 1);
+                const height = Math.max(container.clientHeight, 1);
 
                 camera.aspect = width / height;
                 camera.updateProjectionMatrix();
@@ -142,7 +142,7 @@ export function HeroGeometry() {
             }
 
             const resizeObserver = new ResizeObserver(resize);
-            resizeObserver.observe(mount);
+            resizeObserver.observe(container);
             resize();
 
             let nextTileIndex = 0;
@@ -194,7 +194,7 @@ export function HeroGeometry() {
                 },
             );
 
-            visibilityObserver.observe(mount);
+            visibilityObserver.observe(container);
 
             return () => {
                 resizeObserver.disconnect();
@@ -204,7 +204,7 @@ export function HeroGeometry() {
 
         let disconnectResizeObserver: (() => void) | undefined;
 
-        void initialize().then((cleanup) => {
+        void initialize(mount).then((cleanup) => {
             disconnectResizeObserver = cleanup;
         });
 
