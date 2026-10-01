@@ -25,16 +25,13 @@ export function Home() {
                 <HeroGeometry />
             </Suspense>
             <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 z-1 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.42)_0%,rgba(0,0,0,0.12)_42%,transparent_68%)]"
+                className="hidden md:visible pointer-events-none absolute inset-0 z-1 bg-[radial-gradient(circle_at_center,rgba(0,0,0,0.42)_0%,rgba(0,0,0,0.12)_42%,transparent_68%)]"
             />
             <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-y-0 left-0 z-2 w-[10%] bg-linear-to-r from-black to-transparent"
+                className="hidden md:visible pointer-events-none absolute inset-y-0 left-0 z-2 w-[10%] bg-linear-to-r from-black to-transparent"
             />
             <div
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-y-0 right-0 z-2 w-[10%] bg-linear-to-l from-black to-transparent"
+                className="hidden md:visible pointer-events-none absolute inset-y-0 right-0 z-2 w-[10%] bg-linear-to-l from-black to-transparent"
             />
             <motion.div
                 className="relative z-10 text-center"
