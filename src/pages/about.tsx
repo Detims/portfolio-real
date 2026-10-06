@@ -1,6 +1,7 @@
 import { motion } from "motion/react";
 import { Divider } from "../components/divider";
 import { Experience } from "../components/experience";
+import { Skills } from "../components/skills";
 import {
     fadeDrop,
     softEase,
@@ -49,6 +50,7 @@ export function About() {
                     </motion.p>
                 </motion.div>
             </Divider>
+            <Skills />
             <Experience />
         </div>
     );
