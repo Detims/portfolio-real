@@ -21,7 +21,7 @@ const placeholderProjects: ProjectCardProps[] = [
     {
         title: "InboxAssist",
         description:
-            "An Azure-baseed Google extension for Outlook, utilizing LLM API calls to handle unread email summarization, smart searching, and chatbot functionalities.",
+            "An Azure-based Google extension for Outlook, utilizing LLM API calls to handle unread email summarization, smart searching, and chatbot functionalities.",
         image: "/images/inboxassist.png",
         imageAlt:
             "InboxAssist menu",

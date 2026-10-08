@@ -15,7 +15,7 @@ export function Divider({ id, label, children }: DividerProps) {
             className="mx-auto my-8 max-w-7xl px-6 md:my-12 md:px-10"
         >
             <motion.header
-                className="mb-16 border-b-2 border-white/15 pb-4"
+                className="mb-8 border-b-2 border-white/15 pb-4"
                 initial="hidden"
                 whileInView="visible"
                 viewport={viewportOnce}

@@ -1,5 +1,6 @@
 import Footer from "../components/footer";
 import { About } from "./about";
+import { Contact } from "./contact";
 import { Home } from "./home";
 import { Projects } from "./projects";
 
@@ -9,6 +10,7 @@ export function Portfolio() {
             <Home />
             <About />
             <Projects />
+            <Contact />
             <Footer />
         </div>
     );
