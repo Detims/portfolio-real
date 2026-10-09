@@ -1,12 +1,16 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { softEase } from "../lib/motion";
+import { FaLinkedin } from "react-icons/fa";
+import { HiOutlineMail } from "react-icons/hi";
+import { AiOutlineGithub } from "react-icons/ai";
 
 const navLinks = [
     { label: "Home", id: "home" },
     { label: "About", id: "about" },
     { label: "Experience", id: "experience" },
     { label: "Projects", id: "projects" },
+    { label: "Contact", id: "contact"},
 ];
 
 const mobileListVariants = {
@@ -30,6 +34,7 @@ const mobileItemVariants = {
 
 export function TopNavigation() {
     const [open, setOpen] = useState(false);
+    const menuButtonRef = useRef<HTMLButtonElement>(null);
     const [activeSection, setActiveSection] = useState(() =>
         window.location.hash.slice(1) || "home",
     );
@@ -134,6 +139,8 @@ export function TopNavigation() {
         }
 
         const previousOverflow = document.body.style.overflow;
+        const navigationRow = menuButtonRef.current?.parentElement;
+        const previousRowZIndex = navigationRow?.style.zIndex;
         const handleKeyDown = (event: KeyboardEvent) => {
             if (event.key === "Escape") {
                 setOpen(false);
@@ -141,10 +148,16 @@ export function TopNavigation() {
         };
 
         document.body.style.overflow = "hidden";
+        if (navigationRow) {
+            navigationRow.style.zIndex = "auto";
+        }
         window.addEventListener("keydown", handleKeyDown);
 
         return () => {
             document.body.style.overflow = previousOverflow;
+            if (navigationRow) {
+                navigationRow.style.zIndex = previousRowZIndex ?? "";
+            }
             window.removeEventListener("keydown", handleKeyDown);
         };
     }, [open]);
@@ -155,183 +168,253 @@ export function TopNavigation() {
     };
 
     return (
-        <header className="fixed inset-x-0 top-0 z-50 border-b border-white/10 bg-black/75 backdrop-blur-xl">
-            <div className="relative z-70 mx-auto flex h-16 max-w-7xl items-center justify-between px-5 md:px-10">
-                <motion.a
-                    href="#home"
-                    className="font-mono text-sm tracking-[0.16em] text-white"
-                    onClick={() => handleNavigation("home")}
-                    whileHover={{ y: -2 }}
-                    transition={{ duration: 0.18, ease: softEase }}
-                >
-                    Nhan Nguyen
-                </motion.a>
+        <>
+            <header className="fixed inset-x-0 top-0 z-30 border-b border-white/10 bg-black/75 backdrop-blur-xl">
+                <div className="relative z-40 flex h-16 w-full items-center justify-between px-5 md:px-10">
+                    <motion.a
+                        href="#home"
+                        className="font-mono text-sm tracking-[0.16em] text-white"
+                        onClick={() => handleNavigation("home")}
+                        whileHover={{ y: -2 }}
+                        transition={{ duration: 0.18, ease: softEase }}
+                    >
+                        Nhan Nguyen
+                    </motion.a>
 
-                <nav aria-label="Primary navigation" className="hidden md:block">
-                    <ul className="flex items-center gap-8 lg:gap-10">
+                    {/* Desktop menu */}
+                    <nav aria-label="Primary navigation" className="hidden md:block">
+                        <ul className="flex items-center gap-8 lg:gap-10">
                         {navLinks.map(({ label, id }) => {
-                            const isActive = activeSection === id;
+                                const isActive = activeSection === id;
 
-                            return (
-                                <motion.li
-                                    key={id}
-                                    className="relative"
-                                    whileHover={{ y: -2 }}
-                                    transition={{
-                                        duration: 0.18,
-                                        ease: softEase,
-                                    }}
-                                >
-                                    <a
-                                        href={`#${id}`}
-                                        aria-current={
-                                            isActive ? "location" : undefined
-                                        }
-                                        onClick={() => handleNavigation(id)}
-                                        className={`text-sm transition-colors ${
-                                            isActive
-                                                ? "text-white"
-                                                : "text-white/50 hover:text-white"
-                                        }`}
+                                return (
+                                    <motion.li
+                                        key={id}
+                                        className="relative"
+                                        whileHover={{ y: -2 }}
+                                        transition={{
+                                            duration: 0.18,
+                                            ease: softEase,
+                                        }}
                                     >
-                                        {label}
-                                    </a>
-                                    {isActive && (
-                                        <motion.span
-                                            layoutId="active-navigation-link"
-                                            aria-hidden="true"
-                                            className="absolute -bottom-2 left-0 h-px w-full bg-indigo-300"
-                                            transition={{
-                                                duration: 0.22,
-                                                ease: softEase,
-                                            }}
-                                        />
-                                    )}
-                                </motion.li>
+                                        <a
+                                            href={`#${id}`}
+                                            aria-current={
+                                                isActive ? "location" : undefined
+                                            }
+                                            onClick={() => handleNavigation(id)}
+                                            className={`text-sm transition-colors ${
+                                                isActive
+                                                    ? "text-white"
+                                                    : "text-white/50 hover:text-white"
+                                            }`}
+                                        >
+                                            {label}
+                                        </a>
+                                        {isActive && (
+                                            <motion.span
+                                                layoutId="active-navigation-link"
+                                                aria-hidden="true"
+                                                className="absolute -bottom-2 left-0 h-px w-full bg-indigo-300"
+                                                transition={{
+                                                    duration: 0.22,
+                                                    ease: softEase,
+                                                }}
+                                            />
+                                        )}
+                                    </motion.li>
                             );
                         })}
+                        <li className="ml-2 flex items-center gap-4 border-l border-white/15 pl-4">
+                            <a
+                                href="https://www.linkedin.com/in/nhan-nguyen-281a11294/"
+                                target="_blank"
+                                rel="noreferrer"
+                                aria-label="LinkedIn"
+                                className="text-white/50 transition-colors hover:text-white"
+                            >
+                                <FaLinkedin size={26}/>
+                            </a>
+                            <a
+                                href="https://github.com/Detims"
+                                target="_blank"
+                                rel="noreferrer"
+                                aria-label="GitHub"
+                                className="text-white/50 transition-colors hover:text-white"
+                            >
+                                <AiOutlineGithub size={26} />
+                            </a>
+                        </li>
                     </ul>
-                </nav>
+                    </nav>
 
-                <motion.button
-                    type="button"
-                    aria-controls="mobile-navigation"
-                    aria-expanded={open}
-                    aria-label={open ? "Close navigation" : "Open navigation"}
-                    className="grid size-11 place-items-center text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:hidden"
-                    onClick={() => setOpen((isOpen) => !isOpen)}
-                    whileHover={{ scale: 1.04 }}
-                    transition={{ duration: 0.18, ease: softEase }}
-                >
-                    <span className="sr-only">
-                        {open ? "Close navigation" : "Open navigation"}
-                    </span>
-                    <span aria-hidden="true" className="relative block h-4 w-5">
-                        <motion.span
-                            className="absolute left-0 top-0 h-px w-5 bg-current"
-                            animate={{ rotate: open ? 45 : 0, y: open ? 7 : 0 }}
-                            transition={{ duration: 0.24, ease: softEase }}
-                        />
-                        <motion.span
-                            className="absolute left-0 top-1.75 h-px w-5 bg-current"
-                            animate={{ opacity: open ? 0 : 1 }}
-                            transition={{ duration: 0.16, ease: softEase }}
-                        />
-                        <motion.span
-                            className="absolute bottom-0 left-0 h-px w-5 bg-current"
-                            animate={{
-                                rotate: open ? -45 : 0,
-                                y: open ? -8 : 0,
-                            }}
-                            transition={{ duration: 0.24, ease: softEase }}
-                        />
-                    </span>
-                </motion.button>
-            </div>
-
-            <AnimatePresence initial={false}>
-                {open && (
+                    {/* Mobile nav open */}
                     <motion.button
                         type="button"
-                        aria-label="Close navigation"
-                        className="fixed inset-0 top-16 z-55 bg-black/60 backdrop-blur-[2px] md:hidden"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2, ease: softEase }}
-                        onClick={() => setOpen(false)}
-                    />
-                )}
-            </AnimatePresence>
-
-            <AnimatePresence initial={false}>
-                {open && (
-                    <motion.aside
-                        id="mobile-navigation"
-                        className="fixed inset-y-0 right-0 z-60 flex w-[min(82vw,20rem)] flex-col justify-center border-l border-white/15 bg-black/95 px-8 pt-16 shadow-2xl shadow-black md:hidden"
-                        initial={{ x: "100%" }}
-                        animate={{ x: 0 }}
-                        exit={{ x: "100%" }}
-                        transition={{ duration: 0.3, ease: softEase }}
+                    aria-controls="mobile-navigation"
+                    ref={menuButtonRef}
+                    style={{ position: "relative", zIndex: 70 }}
+                        aria-expanded={open}
+                        aria-label={open ? "Close navigation" : "Open navigation"}
+                        className="z-70 grid size-11 place-items-center text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-white md:hidden"
+                        onClick={() => setOpen((isOpen) => !isOpen)}
+                        whileHover={{ scale: 1.04 }}
+                        transition={{ duration: 0.18, ease: softEase }}
                     >
-                        <p className="mb-10 text-xs uppercase tracking-[0.35em] text-white/40">
-                            Navigation
-                        </p>
-                        <nav aria-label="Mobile navigation">
-                            <motion.ul
-                                className="space-y-7"
-                                initial="hidden"
-                                animate="visible"
-                                variants={mobileListVariants}
-                            >
-                                {navLinks.map(({ label, id }, index) => {
-                                    const isActive = activeSection === id;
+                        <span className="sr-only">
+                            {open ? "Close navigation" : "Open navigation"}
+                        </span>
+                        <span aria-hidden="true" className="relative block h-4 w-5">
+                            <motion.span
+                                className="absolute left-0 top-0 h-px w-5 bg-current"
+                                animate={{ rotate: open ? 45 : 0, y: open ? 7 : 0 }}
+                                transition={{ duration: 0.24, ease: softEase }}
+                            />
+                            <motion.span
+                                className="absolute left-0 top-1.75 h-px w-5 bg-current"
+                                animate={{ opacity: open ? 0 : 1 }}
+                                transition={{ duration: 0.16, ease: softEase }}
+                            />
+                            <motion.span
+                                className="absolute bottom-0 left-0 h-px w-5 bg-current"
+                                animate={{
+                                    rotate: open ? -45 : 0,
+                                    y: open ? -8 : 0,
+                                }}
+                                transition={{ duration: 0.24, ease: softEase }}
+                            />
+                        </span>
+                    </motion.button>
+                </div>
 
-                                    return (
-                                        <motion.li
-                                            key={id}
-                                            variants={mobileItemVariants}
-                                        >
-                                            <a
-                                                href={`#${id}`}
-                                                aria-current={
-                                                    isActive
-                                                        ? "location"
-                                                        : undefined
-                                                }
-                                                onClick={() =>
-                                                    handleNavigation(id)
-                                                }
-                                                className={`group flex items-center gap-4 text-3xl transition-colors ${
-                                                    isActive
-                                                        ? "text-white"
-                                                        : "text-white/45 hover:text-white"
-                                                }`}
-                                            >
-                                                <span className="font-mono text-xs text-white/35">
-                                                    {String(index + 1).padStart(
-                                                        2,
-                                                        "0",
-                                                    )}
-                                                </span>
-                                                <span>{label}</span>
-                                                <span
-                                                    aria-hidden="true"
-                                                    className={`h-px flex-1 transition-colors ${
-                                                        isActive
-                                                            ? "bg-white/70"
-                                                            : "bg-white/10 group-hover:bg-white/30"
-                                                    }`}
-                                                />
-                                            </a>
-                                        </motion.li>
-                                    );
-                                })}
-                            </motion.ul>
-                        </nav>
-                    </motion.aside>
-                )}
-            </AnimatePresence>
-        </header>
+                {/* Mobile nav close */}
+                <AnimatePresence initial={false}>
+                    {open && (
+                        <motion.button
+                            type="button"
+                            aria-label="Close navigation"
+                            className="fixed inset-0 z-70 bg-black/75 backdrop-blur-sm md:hidden"
+                            initial={{ opacity: 0 }}
+                            onClick={() => setOpen(false)}
+                        />
+                    )}
+                </AnimatePresence>
+
+                {/* Mobile menu */}
+                <AnimatePresence>
+                    {open && (
+                        <>
+                            {/* Backdrop */}
+                            <motion.div
+                                className="fixed inset-0 w-screen h-screen z-40 bg-black/60 md:hidden"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                transition={{ duration: 0.2, ease: softEase }}
+                                onClick={() => setOpen(false)}
+                            >
+
+                            </motion.div>
+                            {/* Panel */}
+                            <motion.div
+                                className="fixed right-0 top-0 z-50 flex h-screen w-64 flex-col justify-between bg-[#050505] px-5 pb-12 pt-24 md:hidden"
+                                initial={{ x: '100%' }}
+                                animate={{ x: 0 }}
+                                exit={{ x: '100%' }}
+                                transition={{ duration: 0.4, ease: softEase }}
+                            >
+                                <nav aria-label="Mobile navigation">
+                                    <motion.ul
+                                        className="space-y-7"
+                                        initial="hidden"
+                                        animate="visible"
+                                        variants={mobileListVariants}
+                                    >
+                                        {navLinks.map(({ label, id }, index) => {
+                                            const isActive = activeSection === id;
+
+                                            return (
+                                                <motion.li
+                                                    key={id}
+                                                    variants={mobileItemVariants}
+                                                >
+                                                    <a
+                                                        href={`#${id}`}
+                                                        aria-current={
+                                                            isActive
+                                                                ? "location"
+                                                                : undefined
+                                                        }
+                                                        onClick={() =>
+                                                            handleNavigation(id)
+                                                        }
+                                                        className={`group flex items-center gap-4 text-3xl transition-colors ${
+                                                            isActive
+                                                                ? "text-white"
+                                                                : "text-white/45 hover:text-white"
+                                                        }`}
+                                                    >
+                                                        <span className="font-mono text-xs text-white/35">
+                                                            {String(index + 1).padStart(
+                                                                2,
+                                                                "0",
+                                                            )}
+                                                        </span>
+                                                        <span>{label}</span>
+                                                        <span
+                                                            aria-hidden="true"
+                                                            className={`h-px flex-1 transition-colors ${
+                                                                isActive
+                                                                    ? "bg-white/70"
+                                                                    : "bg-white/10 group-hover:bg-white/30"
+                                                            }`}
+                                                        />
+                                                    </a>
+                                                </motion.li>
+                                            );
+                                        })}
+                                    </motion.ul>
+                                </nav>
+
+                                <motion.div
+                                    className="flex gap-6 text-white/45"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    transition={{ duration: 0.4, delay: 0.2 }}
+                                >
+                                    <a
+                                        href="mailto:nnguyen102304@gmail.com"
+                                        aria-label="Email"
+                                        className="transition-colors hover:text-white"
+                                        target="_blank"
+                                        rel="noreferrer"
+                                    >
+                                        <HiOutlineMail size={26}/>
+                                    </a>
+                                    <a
+                                        href="https://www.linkedin.com/in/nhan-nguyen-281a11294/"
+                                        aria-label="LinkedIn"
+                                        className="transition-colors hover:text-white"
+                                        target="_blank"
+                                        rel="noreferrer"
+                                    >
+                                        <FaLinkedin size={26}/>
+                                    </a>
+                                    <a
+                                        href="https://github.com/Detims"
+                                        aria-label="Github"
+                                        className="transition-colors hover:text-white"
+                                        target="_blank"
+                                        rel="noreferrer"
+                                    >
+                                        <AiOutlineGithub size={26}/>
+                                    </a>
+                                </motion.div>
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>
+            </header>
+        </>
     );
 }

@@ -31,7 +31,7 @@ export function Contact() {
     return (
         <Divider label="Contact" id="contact">
             <motion.div 
-                className="flex flex-col"
+                className="flex flex-col mb-32"
                 initial="hidden"
                 animate="visible"
                 variants={staggerFadeDrop}
@@ -42,12 +42,12 @@ export function Contact() {
                 >
                     I'm open to opportunities or just chatting. You can contact me through these methods:
                 </motion.h2>
-                <ul className="relative mt-6 w-full flex gap-20">
+                <ul className="relative mt-6 w-full flex flex-wrap gap-8 lg:gap-20">
                     {links.map(({ label, link, icon: Icon }) => {
                         return (
                             <li key={label}>
                                 <motion.a 
-                                    className="my-2 py-2 flex items-center gap-2 text-lg text-white/70 hover:text-white duration-200" href={link}
+                                    className="md:my-2 md:pb-2 flex items-center gap-2 text-lg text-white/70 hover:text-white duration-200" href={link}
                                     variants={fadeDrop}
                                     whileHover={{ y: -2 }}
                                     transition={{

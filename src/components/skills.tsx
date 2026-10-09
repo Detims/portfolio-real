@@ -16,10 +16,10 @@ const skillGroups: SkillGroup[] = [
     {
         label: "Languages",
         items: [
-            "Java",
+            "Python",
             "JavaScript",
             "TypeScript",
-            "Python",
+            "Java",
             "C++",
             "HTML",
             "CSS",
@@ -27,11 +27,13 @@ const skillGroups: SkillGroup[] = [
         ],
     },
     {
-        label: "Frameworks",
+        label: "Frameworks & Libraries",
         items: [
             "Flask",
             "Next.js",
             "React",
+            "GSAP",
+            "Three.js",
             "Tailwind CSS",
             "Express.js",
             "Pandas",
