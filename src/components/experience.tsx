@@ -6,7 +6,8 @@ type ExperienceItem = {
     title: string;
     period: string;
     organization: string;
-    summary: string;
+    summary?: string;
+    bullets?: string[];
 };
 
 const experiences: ExperienceItem[] = [
@@ -14,23 +15,32 @@ const experiences: ExperienceItem[] = [
         title: "Machine Learning Engineer",
         period: "June 2026 — Present",
         organization: "American Society of Mechanical Engineers",
-        summary:
-            "Trained a YOLOv8n object detection model on a 15,000+ image custom Pascal and COCO dataset for OpenCV visualization alongside live flight telemetry.",
+        bullets: [
+            "Contributed to the construction of an autonomous glider for iAM3D through a Raspberry Pi 4-based computer vision pipeline using OpenCV-based visualization, distance measurement, gyroscope, and GPS telemetry.",
+            "Trained a YOLOv8n object detection model on a 15,000+ image custom Pascal and COCO-based dataset using ClearML across 10 epochs with a batch size of 8 images and 6 classes, achieving 0.77 and 0.87 F1 scores on person and building detection.",
+            "Integrated a ground control user interface with Python sockets to display bounding boxes, roll, pitch, and GPS telemetry with an average latency of 0.3 seconds.",
+        ],
     },
     {
         title: "Web Developer",
         period: "August 2025 — June 2026",
         organization:
             "Union of Vietnamese Student Associations of Southern California",
-        summary:
-            "Designed and shipped a responsive platform with Next.js, Typescript, and Tailwind, delivering high-performance web experiences for hundreds of users.",
+        bullets: [
+            "Designed and developed a large-scale community platform from scratch through the Agile development framework, executing weekly sprint cycles to deliver iterative design and features under 1–2 week constraints.",
+            "Implemented responsive front-end architecture using TypeScript, React, and Tailwind CSS, increasing cross-device compatibility and reducing page load times by up to 200%.",
+            "Opened and received approval for 15 pull requests concerning major features and issues, including site-wide mobile responsiveness, new pages, and component implementation and styling fixes.",
+        ],
     },
     {
         title: "Frontend Developer",
         period: "August 2025 — March 2026",
         organization: "Association of Computing Machinery",
-        summary:
-            "Built event registration and animated hackathon experiences with JavaScript, Tailwind CSS, and GSAP, supporting more than 300 applications and 137 attendees.",
+        bullets: [
+            "Contributed to front-end event infrastructure and registration systems using JavaScript, Tailwind CSS, and GSAP, processing 300+ applications and supporting seamless experiences for 137 attendees.",
+            "Designed and implemented a dynamic website section with animated GSAP components showcasing 6 hackathon tracks and 12 sponsors within a 1-week development constraint.",
+            "Integrated Firebase to support weekly newsletter distributions reaching 300+ recipients through the organization\’s email workflow.",
+        ],
     },
     {
         title: "B.S in Computer Science",
@@ -86,9 +96,17 @@ export function Experience() {
                                 </p>
                             </div>
 
-                            <p className="col-start-2 mt-6 max-w-3xl text-base leading-7 text-white/65 md:col-start-2 md:row-start-1 md:mt-0 md:pl-12 md:text-xl md:leading-8">
-                                {experience.summary}
-                            </p>
+                            <div className="col-start-2 mt-6 max-w-3xl text-sm leading-6 text-white/65 md:col-start-2 md:row-start-1 md:mt-0 md:pl-12 md:text-base md:leading-7">
+                                {experience.bullets ? (
+                                    <ul className="list-disc space-y-3 pl-5 marker:text-indigo-300/80">
+                                        {experience.bullets.map((bullet) => (
+                                            <li key={bullet}>{bullet}</li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p>{experience.summary}</p>
+                                )}
+                            </div>
                         </motion.li>
                     );
                 })}
