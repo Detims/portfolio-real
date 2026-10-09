@@ -1,7 +1,9 @@
 import { motion } from "motion/react";
 import {
     fadeDrop,
-    softEase
+    softEase,
+    staggerFadeDrop,
+    viewportOnce,
 } from "../lib/motion";
 import { Divider } from "./divider";
 
@@ -56,12 +58,21 @@ const skillGroups: SkillGroup[] = [
 export function Skills() {
     return (
         <Divider label="Skills" id="skills">
-            <div className="flex flex-col gap-10 md:gap-12">
+            <motion.div 
+                className="flex flex-col gap-10 md:gap-12"
+                initial="hidden"
+                whileInView="visible"
+                viewport={viewportOnce}
+                variants={staggerFadeDrop}
+            >
                 {skillGroups.map((group) => (
                     <motion.div key={group.label} variants={fadeDrop}>
-                        <h4 className="mb-4 text-xs font-medium uppercase tracking-[0.24em] text-indigo-300">
+                        <motion.h4 
+                            className="mb-4 text-xs font-medium uppercase tracking-[0.24em] text-indigo-300"
+                            variants={fadeDrop}
+                        >
                             {group.label}
-                        </h4>
+                        </motion.h4>
                         <ul className="flex flex-wrap gap-2.5">
                             {group.items.map((item) => (
                                 <motion.li
@@ -79,7 +90,7 @@ export function Skills() {
                         </ul>
                     </motion.div>
                 ))}
-            </div>
+            </motion.div>
         </Divider>
     );
 }
