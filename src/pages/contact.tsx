@@ -22,7 +22,7 @@ const links = [
     },
     {
         label: "Resume", 
-        link: "", 
+        link: "NhanNguyenResume.pdf", 
         icon: IoDocumentOutline 
     },
 ];
