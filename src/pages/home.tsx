@@ -40,14 +40,23 @@ export function Home() {
                 variants={staggerFadeDrop}
             >
                 <motion.h1
-                    className="font-mono text-5xl font-light text-white md:text-6xl lg:text-8xl [text-shadow:0_3px_12px_rgba(0,0,0,0.95)]"
+                    className="font-mono text-6xl font-light text-white md:text-7xl lg:text-8xl [text-shadow:0_3px_12px_rgba(0,0,0,0.95)]"
                     variants={fadeDrop}
                 >
                     Nhan Nguyen
                 </motion.h1>
-                <motion.h2 className="mt-8 text-2xl [text-shadow:0_2px_8px_rgba(0,0,0,0.95)]" variants={fadeDrop}>
+                <motion.h2 
+                    className="mt-8 text-3xl md:text-4xl [text-shadow:0_2px_8px_rgba(0,0,0,0.95)]" 
+                    variants={fadeDrop}
+                >
                     Software Engineer
                 </motion.h2>
+                <motion.h4 
+                    className="mt-4 text-lg md:text-xl [text-shadow:0_2px_8px_rgba(0,0,0,0.95)]"
+                    variants={fadeDrop}
+                    >
+                    Garden Grove, CA | Graduating May 2027
+                </motion.h4>
                 <motion.div
                     className="mt-10"
                     variants={fadeDrop}
