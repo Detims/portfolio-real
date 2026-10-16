@@ -47,7 +47,10 @@ export function Contact() {
                         return (
                             <li key={label}>
                                 <motion.a 
-                                    className="md:my-2 md:pb-2 flex items-center gap-2 text-lg text-white/70 hover:text-white duration-200" href={link}
+                                    className="md:my-2 md:pb-2 flex items-center gap-2 text-lg text-white/70 hover:text-white duration-200" 
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    href={link}
                                     variants={fadeDrop}
                                     whileHover={{ y: -2 }}
                                     transition={{
