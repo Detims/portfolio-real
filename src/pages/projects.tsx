@@ -8,6 +8,26 @@ import { fadeDrop, viewportOnce } from "../lib/motion";
 
 const placeholderProjects: ProjectCardProps[] = [
     {
+        title: "OrderFlow",
+        description:
+            "Order and inventory microservices in Java and Spring Boot, processed through AWS SQS, and runs on Kubernetes with Jenkins CI.",
+        image: "/images/orderflow.png",
+        imageAlt: "OrderFlow logo",
+        links: [
+            { label: "Github", href: "https://github.com/Detims/OrderFlow" },
+        ],
+    },
+    {
+        title: "CloudVault",
+        description:
+            "Secure document management application using Java and Spring Boot, integrating private AWS S3 object storage and document metadata in Cassandra. Deployed on Kubernetes.",
+        image: "/images/cloudvault.png",
+        imageAlt: "CloudVault logo",
+        links: [
+            { label: "Github", href: "https://github.com/Detims/OrderFlow" },
+        ],
+    },
+    {
         title: "Desktop Job Sim",
         description:
             "A desktop pet with complex job trees, housing, and Gmail integration using Electron.",
