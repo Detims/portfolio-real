@@ -18,7 +18,7 @@ const experiences: ExperienceItem[] = [
         bullets: [
             "Contributed to the construction of an autonomous glider for iAM3D through a Raspberry Pi 4-based computer vision pipeline using OpenCV-based visualization, distance measurement, gyroscope, and GPS telemetry.",
             "Trained a YOLOv8n object detection model on a 15,000+ image custom Pascal and COCO-based dataset using ClearML across 10 epochs with a batch size of 8 images and 6 classes, achieving 0.77 and 0.87 F1 scores on person and building detection.",
-            "Integrated a ground control user interface with Python sockets to display bounding boxes, roll, pitch, and GPS telemetry with an average latency of 0.3 seconds.",
+            "Enhanced autonomous flight analysis by building the ground control interface with Flask and picamera to conduct object detection and stream video capture information, with an average latency of approximately 300 ms.",
         ],
     },
     {
@@ -27,9 +27,9 @@ const experiences: ExperienceItem[] = [
         organization:
             "Union of Vietnamese Student Associations of Southern California",
         bullets: [
-            "Designed and developed a large-scale community platform from scratch through the Agile development framework, executing weekly sprint cycles to deliver iterative design and features under 1–2 week constraints.",
-            "Implemented responsive front-end architecture using TypeScript, React, and Tailwind CSS, increasing cross-device compatibility and reducing page load times by up to 200%.",
-            "Opened and received approval for 15 pull requests concerning major features and issues, including site-wide mobile responsiveness, new pages, and component implementation and styling fixes.",
+            "Developed and maintained features for a large-scale community platform using React, TypeScript, and Tailwind CSS, implementing responsive layouts and interactive UI components alongside various site-wide features.",
+            "Debugged, resolved, and optimized various frontend issues involving component behavior and mobile responsiveness, standardizing component usage and quickened load times by up to 3x.",
+            "Collaborated in an iterative Agile development environment with weekly sprints, delivering new features and bug fixes through Git-based version control and peer-reviewed pull requests under 1-2 week deadlines.",
         ],
     },
     {
