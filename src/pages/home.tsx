@@ -51,12 +51,6 @@ export function Home() {
                 >
                     Software Engineer
                 </motion.h2>
-                <motion.h4 
-                    className="mt-4 text-lg md:text-xl [text-shadow:0_2px_8px_rgba(0,0,0,0.95)]"
-                    variants={fadeDrop}
-                    >
-                    Garden Grove, CA | Graduating May 2027
-                </motion.h4>
                 <motion.div
                     className="mt-10"
                     variants={fadeDrop}
